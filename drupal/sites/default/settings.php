@@ -282,7 +282,7 @@ $databases = [];
  *   $settings['hash_salt'] = file_get_contents('/home/example/salt.txt');
  * @endcode
  */
-$settings['hash_salt'] = '';
+$settings['hash_salt'] = '5ZFiuzUJh2KMpXoSbWmcwCjdfQktyyXAUkOGz3UmE-vNPz2PhRE6XckfoI1nlZ9u71w0UwgrMw';
 
 /**
  * Deployment identifier.
@@ -779,3 +779,14 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 # if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
+$databases['default']['default'] = array (
+  'database' => 'crush',
+  'username' => 'crush',
+  'password' => 'crush',
+  'prefix' => '',
+  'host' => 'mysql',
+  'port' => '3306',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  'driver' => 'mysql',
+);
+$settings['config_sync_directory'] = 'sites/default/files/config_Z4M5xDXtp7oR0EqUCjwQMhk81aieDILyI6O2SeKlRy4JxfhMJGx1-jnLEjss2cxmEN_MzkbxaQ/sync';
