@@ -4,7 +4,7 @@ import json
 import configparser
 from authentication import crushConnection
 
-cc=crushConnection()
+cc=crushConnection("http://localhost:81/","crush","crush")
 session=cc.getConnectionToken()
 
 

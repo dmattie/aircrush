@@ -3,9 +3,17 @@ import pickle
 import requests
 import json
 import configparser
+import tempfile
+
+
 
 
 class crushConnection:
+    def __init__(**kwargs):#endpoint,username,password,):
+        self.endpoint=endpoint
+        self.username=username
+        self.password=password
+        self.tmp=tempfile.gettempdir()
 
     csrf_token=""
     logout_token=""
@@ -14,16 +22,15 @@ class crushConnection:
 
     def getConnectionToken(self):
 
-        config = configparser.ConfigParser()
-        config.read('../crush.ini')
+        #config = configparser.ConfigParser()
+        #config.read('../../crush.ini')
 
-        self.endpoint=config['REST']['endpoint']
-        u=config['REST']['username']
-        p=config['REST']['password']
+        #self.endpoint=config['REST']['endpoint']
+        #u=self.username#config['REST']['username']
+        #p=self.password#config['REST']['password']
 
-        picklelocation=config['PICKLE']['session']
-
-        print(picklelocation)
+        #picklelocation=config['PICKLE']['session']
+        picklelocation=f"{self.tmp}/crush-session.pickle"
 
         if os.path.isfile(picklelocation):
             with open(picklelocation, 'rb') as f:
@@ -31,8 +38,7 @@ class crushConnection:
                 head={"Content-type": "application/vnd.api+json" }
                 url=f"{self.endpoint}user/login_status?_format=json"            
                 r = self.Session.get(url,headers=head)#, headers=head)#,auth=(u, p))
-                login_status=r.content.decode("utf-8")
-                print(login_status)
+                login_status=r.content.decode("utf-8")                
 
                 if self.csrf_token=="":
 
@@ -46,7 +52,7 @@ class crushConnection:
                 if login_status!='1':
                     head={"Content-type": "application/vnd.api+json" }
                     url=f"{self.endpoint}user/login?_format=json"            
-                    payload='{"name":"%s","pass":"%s"}' %(u,p)            
+                    payload='{"name":"%s","pass":"%s"}' %(self.username,self.password)            
                     r = self.Session.post(url, payload,headers=head)#, headers=head)#,auth=(u, p))
                     self.csrf_token=r.json()['csrf_token']
                     self.logout_token=r.json()['logout_token']
@@ -54,8 +60,7 @@ class crushConnection:
                     with open(picklelocation, 'wb') as f:
                         pickle.dump(self.Session, f, pickle.HIGHEST_PROTOCOL)                
                         return(self.Session)
-
-                print("------------")
+                
                # self.csrf_token=r.json()['csrf_token']
                # self.logout_token=r.json()['logout_token']
 
@@ -75,7 +80,7 @@ class crushConnection:
                 
                 head={"Content-type": "application/vnd.api+json" }
                 url=f"{self.endpoint}user/login?_format=json"            
-                payload='{"name":"%s","pass":"%s"}' %(u,p)            
+                payload='{"name":"%s","pass":"%s"}' %(self.username,self.password)            
 
                 r = self.Session.post(url, payload,headers=head)#, headers=head)#,auth=(u, p))
 
