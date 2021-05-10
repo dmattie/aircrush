@@ -19,14 +19,13 @@ payload = {"data" : {
     }
 }}
 
-payload='{"data": {"type": "node--exam", "id": "a3df768d-0b80-4122-a289-1336bcb25bda", "attributes": {"field_directory_format": "unknown", "title":"dave"}}}'
-print(payload)
-print(head)
+#payload='{"data": {"type": "node--exam", "id": "a3df768d-0b80-4122-a289-1336bcb25bda", "attributes": {"field_directory_format": "unknown", "title":"dave"}}}'
 
-r = session.patch(url, payload, headers=head)
-print(r.request.body)
-print(r.request.headers)
-print(r.request.url)
+
+r = session.patch(url, json.dumps(payload), headers=head)
+#print(r.request.body)
+#print(r.request.headers)
+#print(r.request.url)
 print(r.status_code)
 print(r.reason)
 #print(r.json())
