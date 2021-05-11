@@ -30,7 +30,8 @@ class crushConnection:
         #p=self.password#config['REST']['password']
 
         #picklelocation=config['PICKLE']['session']
-        picklelocation=f"{self.tmp}/crush-session.pickle"
+        
+        picklelocation="%s/crush-session.pickle" %(self.tmp)
 
         if os.path.isfile(picklelocation):
             with open(picklelocation, 'rb') as f:
