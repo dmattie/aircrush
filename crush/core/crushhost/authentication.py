@@ -9,10 +9,10 @@ import tempfile
 
 
 class crushConnection:
-    def __init__(**kwargs):#endpoint,username,password,):
-        self.endpoint=endpoint
-        self.username=username
-        self.password=password
+    def __init__(self,**kwargs):#endpoint,username,password,):
+        self.endpoint=kwargs['endpoint']
+        self.username=kwargs['username']
+        self.password=kwargs['password']
         self.tmp=tempfile.gettempdir()
 
     csrf_token=""
