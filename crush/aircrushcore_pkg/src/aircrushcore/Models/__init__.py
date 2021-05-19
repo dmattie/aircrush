@@ -50,7 +50,7 @@ class Pipeline():
 class Task():
     ID=""
     CallingPipeline=""
-    Dependencies={}
+    Prerequisites={}
     log=""
     Parameters=""
 

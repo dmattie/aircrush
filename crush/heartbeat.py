@@ -49,10 +49,11 @@ for lib in modnames:
                 if isinstance(pipeline_dict[name],BaseOperator):      
                     T=Task(pipeline_dict[name].ID)
                     T.CallingPipeline=P.ID
-                    T.Parameters=pipeline_dict[name].constructor
-                    print(dir(T))
-        
+                    T.Parameters=pipeline_dict[name].Parameters
+     
                     
+        
+                    print(T.Prerequisites)
                     
                     # ,pipeline_dict[name].constructor)     
                     # print(name) 

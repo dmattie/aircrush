@@ -16,4 +16,6 @@ pipeline=Pipeline('levman',metadata=metadata)
 t1=HCPSlurmJob(id='hcp1',key='val')   
 t2=HCPSlurmJob(id='hcp2')  
 
+t2.addPrerequisite(t1)
+
   
