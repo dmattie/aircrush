@@ -8,19 +8,22 @@ class Pipeline():
         
     def __init__(self,id,**kwargs):
         self.ID=id
-        if 'title' in kwargs:
-            self.title=kwargs['title']
+        if 'metadata' in kwargs:
+            m=kwargs['metadata']
+            
+        if 'title' in m:
+            self.title=m['title']
         else:
             self.title=id
 
-        if 'author' in kwargs:
-            self.author=kwargs['author']
+        if 'author' in m:
+            self.author=m['author']
 
-        if 'author-email' in kwargs:
-            self.author_email=kwargs['author-email']
+        if 'author_email' in m:
+            self.author_email=m['author_email']
         
-        if 'abstract' in kwargs:
-            self.abstract=kwargs['abstract']
+        if 'abstract' in m:
+            self.abstract=m['abstract']
 
     def __enter__(self):
              

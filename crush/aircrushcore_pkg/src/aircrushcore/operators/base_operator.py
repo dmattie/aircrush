@@ -1,7 +1,7 @@
 class BaseOperator:
     def __init__(self,id,**kwargs):
         self.ID=id
-
+        
         pass
     def setCallingPipeline(self,pipelineID):
         self.Pipeline=pipelineID
