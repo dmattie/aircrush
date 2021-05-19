@@ -1,12 +1,11 @@
 from aircrushcore.operators.base_operator import BaseOperator
-from aircrushcore.workflow.pipeline import Pipeline
+from aircrushcore.Models import Pipeline
 from aircrushcore.crushhost.repository import PipelineRepository
 #from aircrushcore import workflow
 import importlib
 import traceback
 #import aircrushcore
 
-print("A")
 R=None
 try:
     R=PipelineRepository(
@@ -17,17 +16,13 @@ try:
 except:
     traceback.print_exc()
 
-
-print("B")
-
 modnames=['pipelines.levman']
 
 for lib in modnames:
     ##globals()[lib]=importlib.import_module(lib)
 
 
-    pipeline_module=importlib.import_module(lib)
-    print("X")
+    pipeline_module=importlib.import_module(lib)    
     pipeline_dict = pipeline_module.__dict__
     try:
         to_import = pipeline_module.__all__

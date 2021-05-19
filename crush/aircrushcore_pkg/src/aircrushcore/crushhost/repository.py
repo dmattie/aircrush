@@ -1,5 +1,5 @@
 from . import crush
-from ..workflow.pipeline import Pipeline
+from ..Models import Pipeline
 import traceback
 
 class PipelineRepository():
@@ -29,15 +29,25 @@ class PipelineRepository():
                     if(item['type']=='node--pipeline'):
                         pipeline_count=pipeline_count+1
                         uuid=item['id']
-                        print(uuid)
+
+                        metadata={    
+                            "title":item['attributes']['title']  ,  
+                            "author":item['attributes']['field_author'],
+                            "author_email":item['attributes']['field_author_email'],
+                            "abstract":item['attributes']['body']['value'],                             
+                        }
+
+                        self.Pipelines[item['attributes']['field_id']]=Pipeline(item['attributes']['field_id'] ,metadata=metadata)                        
 
     def upsertPipeline(self,pipeline):
-        try:
-            print("PipelineRepository:: Upserting")
+        
+        try:            
             if pipeline.ID in self.Pipelines:
+                print(f"PipelineRepository::found profile for [{pipeline.ID}] on CRUSH host, updating metadata")
                 pass
                 #Update
             else:
+                print(f"PipelineRepository::New {pipeline.ID}, Inserting")
                 #Insert
  
                 payload = {"data" : {
@@ -50,7 +60,6 @@ class PipelineRepository():
                         "field_id":pipeline.ID
                     }               
                 }}
-                print(payload)
 
                 r= self.HOST.post("jsonapi/node/pipeline",payload)
                 if(r.status_code!=201):

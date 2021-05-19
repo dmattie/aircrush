@@ -1,8 +1,8 @@
 import sys
 
-from aircrushcore.operators.base_operator import BaseOperator
+
 from aircrushcore.operators.slurm_operator import HCPSlurmJob
-from aircrushcore.workflow.pipeline import Pipeline
+from aircrushcore.Models import Pipeline
 
 metadata={    
     "title":"Diffusion tractography - all regions"  ,  
@@ -14,5 +14,6 @@ metadata={
 pipeline=Pipeline('levman',metadata=metadata)
 
 t1=HCPSlurmJob(id='hcp1')   
+t2=HCPSlurmJob(id='hcp2')  
 
   

@@ -46,3 +46,14 @@ class Pipeline():
         print(functions)
         print("xxxxxxxxxx")
         print(locals())
+
+class Task():
+    ID=""
+    CallingPipeline=""
+    Dependencies={}
+    log=""
+    Parameters=""
+
+    def __init__(self,ID,**kwargs):
+        self.ID=ID
+        pass
