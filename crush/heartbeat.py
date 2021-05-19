@@ -1,5 +1,6 @@
 from aircrushcore.operators.base_operator import BaseOperator
-from aircrushcore.Models import Pipeline
+from aircrushcore.operators.slurm_operator import HCPSlurmJob
+from aircrushcore.Models import Pipeline,Task
 from aircrushcore.crushhost.repository import PipelineRepository
 #from aircrushcore import workflow
 import importlib
@@ -28,7 +29,7 @@ for lib in modnames:
         to_import = pipeline_module.__all__
     except AttributeError:
         to_import = [name for name in pipeline_dict if not name.startswith('_')]
-
+        #================ PIPELINES
         pipelines_found=0
         for name in to_import:          
           if isinstance(pipeline_dict[name],Pipeline):   
@@ -43,41 +44,19 @@ for lib in modnames:
             print(f"Parsing [{lib}]")  
             
             R.upsertPipeline(P)
-               
-            
-            
-            
-            #print(pipeline_dict[name].ID)
+            #=================  TASKS
+            for name in to_import:        
+                if isinstance(pipeline_dict[name],BaseOperator):      
+                    T=Task(pipeline_dict[name].ID)
+                    T.CallingPipeline=P.ID
+                    T.Parameters=pipeline_dict[name].constructor
+                    print(dir(T))
         
-
-     #     print(f"...............{name}={pipeline_dict[name]}")
-     
-  #  print(dir())
-   #print(type(t1))
-   #print(isinstance(t1, BaseOperator))
-   #pass
-
-# for lib in modnames:
-#     print(lib)
-#     for potentialOp in globals()[lib]:#(dir(globals()[lib])):
-
-#         if(isinstance(potentialOp,BaseOperator)):
-#             print(potentialOp)
-#         else:
-#             print("Not:"+potentialOp)
-# print('==================')
-            
-# print(globals())
-
-
-
-
-
-#from crush import pluginloader
-
-#for i in pluginloader.getPlugins():
-#    print(i)           
-    #    if(self.ID==None or i["name"]==self.ID):
-    #        print("Invoking plugin " + i["name"])
-    #        plugin = pluginloader.loadPlugin(i)                
-    #        plugin.run(self)
+                    
+                    
+                    # ,pipeline_dict[name].constructor)     
+                    # print(name) 
+                    # parms=pipeline_dict[name].__init__.__code__.co_varnames
+                    # print(parms)
+                    # print(pipeline_dict[name].constructor)
+        
