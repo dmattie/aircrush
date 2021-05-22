@@ -1,13 +1,12 @@
 
 class Pipeline():
-    ID=""
-    title=""
-    author=""
-    author_email=""
-    abstract=""
         
-    def __init__(self,id,**kwargs):
-        self.ID=id
+    def __init__(self,id,**kwargs):  
+        self.ID=id          
+        self.title=""
+        self.author=""
+        self.author_email=""
+        self.abstract=""        
         if 'metadata' in kwargs:
             m=kwargs['metadata']
             
@@ -48,12 +47,16 @@ class Pipeline():
         print(locals())
 
 class Task():
-    ID=""
-    CallingPipeline=""
-    Dependencies={}
-    log=""
-    Parameters=""
 
     def __init__(self,ID,**kwargs):
-        self.ID=ID
-        pass
+        self.ID=ID            
+        self.CallingPipeline=""
+        self.Prerequisites=[]
+        self.log=""
+        self.Parameters=""
+
+        if 'CallingPipeline' in kwargs:
+            self.CallingPipeline=kwargs['CallingPipeline']
+        if 'Parameters' in kwargs:
+            self.Parameters=kwargs['Parameters']
+

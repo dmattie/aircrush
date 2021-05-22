@@ -1,7 +1,7 @@
 from aircrushcore.operators.base_operator import BaseOperator
 from aircrushcore.operators.slurm_operator import HCPSlurmJob
 from aircrushcore.Models import Pipeline,Task
-from aircrushcore.crushhost.repository import PipelineRepository
+from aircrushcore.crushhost.repository import PipelineRepository,TaskRepository
 #from aircrushcore import workflow
 import importlib
 import traceback
@@ -10,6 +10,15 @@ import traceback
 R=None
 try:
     R=PipelineRepository(
+        endpoint="http://localhost:81/",
+        username="crush",
+        password="crush"
+        )
+except:
+    traceback.print_exc()
+
+try:
+    TaskRepo=TaskRepository(
         endpoint="http://localhost:81/",
         username="crush",
         password="crush"
@@ -49,14 +58,9 @@ for lib in modnames:
                 if isinstance(pipeline_dict[name],BaseOperator):      
                     T=Task(pipeline_dict[name].ID)
                     T.CallingPipeline=P.ID
-                    T.Parameters=pipeline_dict[name].constructor
-                    print(dir(T))
-        
-                    
-                    
-                    # ,pipeline_dict[name].constructor)     
-                    # print(name) 
-                    # parms=pipeline_dict[name].__init__.__code__.co_varnames
-                    # print(parms)
-                    # print(pipeline_dict[name].constructor)
-        
+                    T.Parameters=pipeline_dict[name].Parameters  
+
+                    TaskRepo.upsertTask(T)  
+
+                    #print(f"{name},{pipeline_dict[name]},{pipeline_dict[name].Prerequisites}")
+                 

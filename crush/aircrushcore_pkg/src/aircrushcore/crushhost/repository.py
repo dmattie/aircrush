@@ -1,11 +1,12 @@
 from . import crush
-from ..Models import Pipeline
+from ..Models import Pipeline,Task
 import traceback
 
 class PipelineRepository():
-    Pipelines={}
     
-    def __init__(self,**kwargs):        
+    
+    def __init__(self,**kwargs):    
+        self.Pipelines={}    
         username=kwargs['username']
         password=kwargs['password']
         endpoint=kwargs['endpoint']  
@@ -67,6 +68,94 @@ class PipelineRepository():
         except:
             if( not isinstance(pipeline,Pipeline)):
                 print("Pipeline object not passed to upsert")
+            else:
+                 traceback.print_exc()
+
+
+
+class TaskRepository():
+    
+    
+    def __init__(self,**kwargs):  
+        self.Tasks={}      
+        username=kwargs['username']
+        password=kwargs['password']
+        endpoint=kwargs['endpoint']  
+
+        self.HOST=crush.crush(
+            endpoint="http://localhost:81/",
+            username="crush",
+            password="crush"
+        )
+
+        self.getKnownTasks()
+
+    def getKnownTasks(self):
+        r = self.HOST.get('jsonapi/node/task')
+        if r.status_code==200:  #We can connect to CRUSH host
+            # Iterate the tasks            
+            task_count=0    
+            if len(r.json()['data'])==0:
+                print("TaskRepository:: No tasks found on CRUSH Host.")                
+            else:       
+                for item in r.json()['data']:
+                    if(item['type']=='node--task'):
+                        task_count=task_count+1
+                        uuid=item['id']
+
+
+                        metadata={    
+                            "CallingPipeline":item['relationships']['field_pipeline']['data']['id']  ,  
+                            "Parameters":item['attributes']['field_parameters'],
+                            "Prerequisite":item['relationships']['field_prerequisite_tasks']['data']                          
+                        }
+
+                        self.Tasks[item['attributes']['field_id']]=Task(item['attributes']['field_id'] ,metadata=metadata)                        
+
+
+
+    def upsertTask(self,task):
+        
+        try:            
+            if task.ID in self.Tasks:
+                print(f"TaskRepository::found task profile for [{task.ID}] on CRUSH host, updating metadata")
+                pass
+                #Update
+            else:
+                print(f"TaskRepository::New {task.ID}, Inserting")
+                #Insert
+ 
+                payload = {"data" : {
+                    "type":"node--task",                    
+                    "attributes":{
+                        "title": task.ID,                        
+                        "field_id":task.ID,
+                        "field_parameters": task.Parameters,
+                    },
+                    "relationships":{
+                        "field_pipeline":{
+                            "data":{
+                                "type":"node--pipeline",
+                                "id":task.CallingPipeline
+                            }
+                        },
+                        "field_prerequisite_tasks":{
+                            "data":[
+                                task.Prerequisites
+                            ]
+                        }
+                    }              
+                }}
+
+                print(payload)
+
+                r= self.HOST.post("jsonapi/node/task",payload)
+                if(r.status_code!=201):
+                    print(r)
+                    print(f"[ERROR] failed to create task {task.ID} on CRUSH HOST: {r.status_code},  {r.reason}")
+        except:
+            if( not isinstance(task,Task)):
+                print("Task object not passed to upsert")
             else:
                  traceback.print_exc()
 

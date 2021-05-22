@@ -13,7 +13,12 @@ metadata={
 
 pipeline=Pipeline('levman',metadata=metadata)
 
-t1=HCPSlurmJob(id='hcp1',key='val')   
-t2=HCPSlurmJob(id='hcp2')  
+ta=HCPSlurmJob(id='hcp1',key='val')   
+tb=HCPSlurmJob(id='hcp2')  
+tc=HCPSlurmJob(id='hcp3',a='b')  
+
+tb.addPrerequisite(ta)
+tc.addPrerequisite(tb)
+
 
   

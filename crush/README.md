@@ -11,3 +11,6 @@ https://www.danielmorell.com/blog/dynamically-calling-functions-in-python-safely
 
 
 Singularity container:  Thanks! It took a little tweaking from the docker version they provided, but the singularity container works fine! If you run into any bugs setting one up, feel free to give me a shout (pcamach2@illinois.edu)
+
+
+Createing tasks in heartbeat:  payload in reository malformed, parameters is dict and pipeline isn't guid
