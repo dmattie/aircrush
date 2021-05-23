@@ -2,27 +2,33 @@ from aircrushcore.operators.base_operator import BaseOperator
 from aircrushcore.operators.slurm_operator import HCPSlurmJob
 from aircrushcore.Models import Pipeline,Task
 from aircrushcore.crushhost.repository import PipelineRepository,TaskRepository
+from aircrushcore.crushhost.crush import crush
+
 #from aircrushcore import workflow
 import importlib
 import traceback
 #import aircrushcore
 
-R=None
+crushHOST=None
+
 try:
-    R=PipelineRepository(
+    crushHOST=crush(
         endpoint="http://localhost:81/",
         username="crush",
         password="crush"
         )
 except:
     traceback.print_exc()
+    print("\n\n==========\nERROR: Unable to connect to crush host\n==========\n\n")
+    
+R=None
+try:
+    R=PipelineRepository(host=crushHOST)
+except:
+    traceback.print_exc()
 
 try:
-    TaskRepo=TaskRepository(
-        endpoint="http://localhost:81/",
-        username="crush",
-        password="crush"
-        )
+    TaskRepo=TaskRepository(host=crushHOST)
 except:
     traceback.print_exc()
 

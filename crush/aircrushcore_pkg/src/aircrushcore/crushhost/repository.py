@@ -7,16 +7,14 @@ class PipelineRepository():
     
     def __init__(self,**kwargs):    
         self.Pipelines={}    
-        username=kwargs['username']
-        password=kwargs['password']
-        endpoint=kwargs['endpoint']  
+        if "host" in kwargs:
+            self.HOST=kwargs['host']
+            self.getKnownPipelines()
+        else:
+            print("\nERROR:PipelineRepository::HOST not specified\n")
+            
 
-        self.HOST=crush.crush(
-            endpoint="http://localhost:81/",
-            username="crush",
-            password="crush"
-        )
-        self.getKnownPipelines()
+        
 
     def getKnownPipelines(self):
         r = self.HOST.get('jsonapi/node/pipeline')
@@ -79,21 +77,19 @@ class TaskRepository():
     
     def __init__(self,**kwargs):  
         self.Tasks={}      
-        username=kwargs['username']
-        password=kwargs['password']
-        endpoint=kwargs['endpoint']  
+        if "host" in kwargs:
+            self.HOST=kwargs['host']
 
-        self.HOST=crush.crush(
-            endpoint="http://localhost:81/",
-            username="crush",
-            password="crush"
-        )
+            self.getKnownTasks()
 
-        self.getKnownTasks()
+            PR=PipelineRepository(host=self.HOST)
+            PR.getKnownPipelines()
+            self.KnownPipelines=PR.Pipelines
+            
+        else:
+            print("\nERROR:TaskRepository::HOST not specified\n")
+            
 
-        PR=PipelineRepository(username=username,password=password,endpoint=endpoint)
-        PR.getKnownPipelines()
-        self.KnownPipelines=PR.Pipelines
             
     def getKnownTasks(self):
         r = self.HOST.get('jsonapi/node/task')
