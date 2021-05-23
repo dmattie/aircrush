@@ -34,18 +34,47 @@ class PipelineRepository():
                             "author":item['attributes']['field_author'],
                             "author_email":item['attributes']['field_author_email'],
                             "abstract":item['attributes']['body']['value'],  
-                            "uuid":uuid                           
+                            "uuid":uuid,
+                            "id": item['attributes']['field_id']                       
                         }
 
-                        self.Pipelines[item['attributes']['field_id']]=Pipeline(item['attributes']['field_id'] ,metadata=metadata)                        
+                        self.Pipelines[item['attributes']['field_id']]=Pipeline(metadata=metadata)                        
 
     def upsertPipeline(self,pipeline):
         
         try:            
             if pipeline.ID in self.Pipelines:
                 print(f"PipelineRepository::found profile for [{pipeline.ID}] on CRUSH host, updating metadata")
-                pass
+                
+                
+                payload = {
+                    "data" : {
+                        "type":"node--pipeline",    
+                        "id":self.Pipelines[pipeline.ID].uuid,                
+                        "attributes":{
+                            "title": pipeline.title,                        
+                            "field_id":pipeline.ID,
+                            "field_author":pipeline.author,
+                            "field_author_email":pipeline.author_email,
+                            "body":pipeline.abstract,
+                            "field_plugin_warnings":pipeline.plugin_warnings                            
+                        }            
+                    }
+                }
+                                
+                r= self.HOST.patch(f"jsonapi/node/pipeline/{self.Pipelines[pipeline.ID].uuid}",payload)
+                if(r.status_code!=200):                   
+                    print(f"[ERROR] failed to patch pipeline {pipeline.ID} on CRUSH HOST: {r.status_code},  {r.reason}")
+                else:                                     
+                    if len(r.json()['data'])==0:
+                        print("PipelineRepository::UpsertPipeline:  Pipeline not updated.")                
+                    else:       
+                        return r.json()['data']['id']
+                    
                 #Update
+
+
+
             else:
                 print(f"PipelineRepository::New {pipeline.ID}, Inserting")
                 #Insert

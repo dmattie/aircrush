@@ -1,16 +1,28 @@
+import inspect,os
 
 class Pipeline():
         
-    def __init__(self,id,**kwargs):  
-        self.ID=id          
+    def __init__(self,**kwargs):  
+
+
         self.title=""
         self.author=""
         self.author_email=""
         self.abstract=""   
-        self.uuid=""     
+        self.uuid=""
+        self.plugin_warnings=""     
         if 'metadata' in kwargs:
             m=kwargs['metadata']
-            
+
+        if "id" in m:
+            self.ID=m['id']
+        else:
+            filename=os.path.splitext(os.path.basename(inspect.stack()[1].filename ))[0]
+            print("----------------")        
+            print(filename)
+            print("----------------")
+            self.ID=filename
+                        
         if 'title' in m:
             self.title=m['title']
         else:
