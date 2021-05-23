@@ -6,7 +6,8 @@ class Pipeline():
         self.title=""
         self.author=""
         self.author_email=""
-        self.abstract=""        
+        self.abstract=""   
+        self.uuid=""     
         if 'metadata' in kwargs:
             m=kwargs['metadata']
             
@@ -23,6 +24,9 @@ class Pipeline():
         
         if 'abstract' in m:
             self.abstract=m['abstract']
+
+        if 'uuid' in m:
+            self.uuid=m['uuid']
 
     def __enter__(self):
              
@@ -51,12 +55,17 @@ class Task():
     def __init__(self,ID,**kwargs):
         self.ID=ID            
         self.CallingPipeline=""
-        self.Prerequisites=[]
+        self.CallingPipelineUUID=""
+        self.Prerequisites={}
         self.log=""
         self.Parameters=""
+        self.uuid=""
 
         if 'CallingPipeline' in kwargs:
             self.CallingPipeline=kwargs['CallingPipeline']
         if 'Parameters' in kwargs:
             self.Parameters=kwargs['Parameters']
+
+        if 'Prerequisites' in kwargs:
+            self.Prerequisites=kwargs['Prerequisites']
 

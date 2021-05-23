@@ -35,7 +35,8 @@ class PipelineRepository():
                             "title":item['attributes']['title']  ,  
                             "author":item['attributes']['field_author'],
                             "author_email":item['attributes']['field_author_email'],
-                            "abstract":item['attributes']['body']['value'],                             
+                            "abstract":item['attributes']['body']['value'],  
+                            "uuid":uuid                           
                         }
 
                         self.Pipelines[item['attributes']['field_id']]=Pipeline(item['attributes']['field_id'] ,metadata=metadata)                        
@@ -90,6 +91,10 @@ class TaskRepository():
 
         self.getKnownTasks()
 
+        PR=PipelineRepository(username=username,password=password,endpoint=endpoint)
+        PR.getKnownPipelines()
+        self.KnownPipelines=PR.Pipelines
+            
     def getKnownTasks(self):
         r = self.HOST.get('jsonapi/node/task')
         if r.status_code==200:  #We can connect to CRUSH host
@@ -124,35 +129,50 @@ class TaskRepository():
             else:
                 print(f"TaskRepository::New {task.ID}, Inserting")
                 #Insert
- 
+
+                for p in self.KnownPipelines:
+                    if self.KnownPipelines[p].ID==task.CallingPipeline:
+                        task.CallingPipelineUUID=self.KnownPipelines[p].uuid
+
+                prereq=list()
+                for p in task.Prerequisites:
+                    x={"type":"node--task", "id":task.Prerequisites[p].uuid}                   
+                    prereq.append(x)
+                
+                
                 payload = {"data" : {
                     "type":"node--task",                    
                     "attributes":{
                         "title": task.ID,                        
                         "field_id":task.ID,
-                        "field_parameters": task.Parameters,
+                        "field_parameters": str(task.Parameters),
                     },
                     "relationships":{
                         "field_pipeline":{
                             "data":{
                                 "type":"node--pipeline",
-                                "id":task.CallingPipeline
+                                "id":task.CallingPipelineUUID
                             }
                         },
                         "field_prerequisite_tasks":{
-                            "data":[
-                                task.Prerequisites
-                            ]
+                            "data": prereq#task.Prerequisites                            
                         }
                     }              
                 }}
 
-                print(payload)
+               # print(payload)                
 
                 r= self.HOST.post("jsonapi/node/task",payload)
-                if(r.status_code!=201):
-                    print(r)
+                if(r.status_code!=201):                   
                     print(f"[ERROR] failed to create task {task.ID} on CRUSH HOST: {r.status_code},  {r.reason}")
+                else:
+                    print(r.json())
+                    if len(r.json()['data'])==0:
+                        print("TaskRepository::UpsertTask:  Task not created.")                
+                    else:       
+                        return r.json()['data']['id']
+                    
+
         except:
             if( not isinstance(task,Task)):
                 print("Task object not passed to upsert")
