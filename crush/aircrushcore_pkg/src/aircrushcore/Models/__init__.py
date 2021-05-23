@@ -61,11 +61,18 @@ class Task():
         self.Parameters=""
         self.uuid=""
 
-        if 'CallingPipeline' in kwargs:
-            self.CallingPipeline=kwargs['CallingPipeline']
-        if 'Parameters' in kwargs:
-            self.Parameters=kwargs['Parameters']
+        if 'metadata' in kwargs:
+            m=kwargs['metadata']
+                    
 
-        if 'Prerequisites' in kwargs:
-            self.Prerequisites=kwargs['Prerequisites']
+        if 'CallingPipeline' in m:
+            self.CallingPipeline=m['CallingPipeline']
+        if 'Parameters' in m:
+            self.Parameters=m['Parameters']
+
+        if 'Prerequisites' in m:
+            self.Prerequisites=m['Prerequisites']
+        if 'uuid' in m:
+            self.uuid=m['uuid']
+            
 

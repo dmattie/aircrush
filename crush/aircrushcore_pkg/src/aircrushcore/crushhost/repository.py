@@ -112,9 +112,10 @@ class TaskRepository():
                         metadata={    
                             "CallingPipeline":item['relationships']['field_pipeline']['data']['id']  ,  
                             "Parameters":item['attributes']['field_parameters'],
-                            "Prerequisite":item['relationships']['field_prerequisite_tasks']['data']                          
+                            "Prerequisite":item['relationships']['field_prerequisite_tasks']['data'] ,  
+                            "uuid":uuid
                         }
-
+                                                                   
                         self.Tasks[item['attributes']['field_id']]=Task(item['attributes']['field_id'] ,metadata=metadata)                        
 
 
@@ -122,9 +123,52 @@ class TaskRepository():
     def upsertTask(self,task):
         
         try:            
-            if task.ID in self.Tasks:
-                print(f"TaskRepository::found task profile for [{task.ID}] on CRUSH host, updating metadata")
-                pass
+            if task.ID in self.Tasks:                
+                print(f"TaskRepository::found task profile for [{task.ID}] uuid:[{self.Tasks[task.ID].uuid}] on CRUSH host, syncing metadata")
+
+                for p in self.KnownPipelines:
+                    if self.KnownPipelines[p].ID==task.CallingPipeline:
+                        task.CallingPipelineUUID=self.KnownPipelines[p].uuid
+
+                prereq=list()
+                for p in task.Prerequisites:                    
+                    x={"type":"node--task", "id":task.Prerequisites[p].uuid}                   
+                    prereq.append(x)
+
+                payload = {
+                    "data" : {
+                        "type":"node--task",    
+                        "id":self.Tasks[task.ID].uuid,                
+                        "attributes":{
+                            "title": task.ID,                        
+                            "field_id":task.ID,
+                            "field_parameters": str(task.Parameters),
+                        },
+                        "relationships":{
+                            "field_pipeline":{
+                                "data":{
+                                    "type":"node--pipeline",
+                                    "id":task.CallingPipelineUUID
+                                }
+                            },
+                            "field_prerequisite_tasks":{
+                                "data": prereq#task.Prerequisites                            
+                            }
+                        }              
+                    }
+                }
+
+                               
+                
+                r= self.HOST.patch(f"jsonapi/node/task/{self.Tasks[task.ID].uuid}",payload)
+                if(r.status_code!=200):                   
+                    print(f"[ERROR] failed to patch task {task.ID} on CRUSH HOST: {r.status_code},  {r.reason}")
+                else:                    
+                    if len(r.json()['data'])==0:
+                        print("TaskRepository::UpsertTask:  Task not created.")                
+                    else:       
+                        return r.json()['data']['id']
+                    
                 #Update
             else:
                 print(f"TaskRepository::New {task.ID}, Inserting")

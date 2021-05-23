@@ -63,17 +63,18 @@ for lib in modnames:
             for name in to_import:        
                 if isinstance(pipeline_dict[name],BaseOperator):  
                     
-                    T=Task(pipeline_dict[name].ID,
-                        CallingPipeline=P.ID,
-                        Parameters=pipeline_dict[name].Parameters,
-                        Prerequisites=pipeline_dict[name].Prerequisites)
 
+                    metadata={    
+                        "CallingPipeline":P.ID ,  
+                        "Parameters":pipeline_dict[name].Parameters,
+                        "Prerequisite":pipeline_dict[name].Prerequisites
+                    }
+                            
+                    T=Task(pipeline_dict[name].ID,metadata=metadata)
                     list_to_upsert[T.ID]=T
 
-            while len(list_to_upsert)>0 and (len(list_to_upsert)>skipcounter) and (len(list_to_upsert)>len(upserted)):
-                #print(f"HERE:   len(todo):{len(list_to_upsert)}, skipcounter={skipcounter}, done:{len(upserted)}" )
-                for T in list_to_upsert:
-                    print(f"Upserting {T}")
+            while len(list_to_upsert)>0 and (len(list_to_upsert)>skipcounter) and (len(list_to_upsert)>len(upserted)):                
+                for T in list_to_upsert:                    
                     Tobj=list_to_upsert[T]
                     if(Tobj!=None):
                         if len(Tobj.Prerequisites)>0:
@@ -82,43 +83,20 @@ for lib in modnames:
                                 if prereq not in upserted:                                    
                                     canpost=False
                                 else:
-                                    Tobj.Prerequisites[prereq].uuid=upserted[prereq].uuid
-                                    print(f"uuid determined for prereq:  {Tobj.Prerequisites[prereq].uuid}")
-                            if canpost:
-                                #print(f"Can Upsert {T}")#Upsert
-                                uuid=TaskRepo.upsertTask(Tobj)
-                                print(f"uuid returned:: {uuid}")
+                                    Tobj.Prerequisites[prereq].uuid=upserted[prereq].uuid                                                                        
+                            if canpost:   
+                                ## Careful, there are two of these, this, and the one below for cases without prereqs                             
+                                uuid=TaskRepo.upsertTask(Tobj)                                  
                                 Tobj.uuid=uuid
                                 upserted[T]=Tobj
                                 list_to_upsert[T]=None                                
                                 upsertcounter=upsertcounter+1
       
-                        else:
-                            #print(f"Upsert {T}")#Upsert
-                            uuid=TaskRepo.upsertTask(Tobj)
-                            print(f"uuid returned: {uuid}")
+                        else:         
+                            ## Careful, there are two of these, this, and the one above for cases with prereqs                   
+                            uuid=TaskRepo.upsertTask(Tobj)                            
                             Tobj.uuid=uuid
                             upserted[T]=Tobj
-                            list_to_upsert[T]=None
-                            #list_to_upsert.pop(T)
+                            list_to_upsert[T]=None                            
                             upsertcounter=upsertcounter+1
-                #print(f"THERE:   len(todo):{len(list_to_upsert)}, skipcounter={skipcounter}, done:{len(upserted)}" )
                 
-
-                    #add to list to post
-                    #while lits to post is not empty or list length=#skipped (DAG not acyclic)
-                        #iterate list to post while none left
-                            #if item has prereqs in list to post
-                                #skip
-                                #increment number skipped
-                            #else 
-                                #upsert
-                                #remove from list to post
-                                #update upsert increment
-                        
-
-                   
-                    # TaskRepo.upsertTask(T)  
-
-                    
-                 
