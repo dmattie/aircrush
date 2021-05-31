@@ -20,7 +20,9 @@
         "drupal/core-project-message": "^9.1",
         "drupal/core-recommended": "^9.1",
         "drupal/core-vendor-hardening": "^9.1",
-        "drupal/unique_entity_title": "^1.2"
+        "drupal/radix": "^4.10",
+        "drupal/unique_entity_title": "^1.2",
+        "drupal/views_bootstrap": "^4.3"
     },
     "conflict": {
         "drupal/drupal": "*"

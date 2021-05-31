@@ -1,0 +1,31 @@
+body {background-image:none;
+}
+.status-running { 
+    background-color:#00ff99;
+    color:black;
+}
+
+.status-failed { 
+    background-color:#ff9999;
+    color:black;
+}
+
+
+.status-completed { 
+    background-color:#2eb82e;
+    color:white !important;
+}
+.status-completed a{
+    color:#cceeff;
+}
+.status-limping { 
+    background-color:#ffff99;
+    color:white !important;
+}
+.ac-statusgrid .field-content {
+    padding:.5rem;
+}
+pre {
+    font-size:0.8rem;
+    line-height:1.25rem;
+}
