@@ -26,13 +26,18 @@ class TaskRepository():
                     if(item['type']=='node--task'):
 
                         uuid=item['id']
+                        prereqs=[]
+
+                        for prereq in item['relationships']['field_prerequisite_tasks']['data']:                            
+                            if prereq['type']=='node--task':                                
+                                prereqs.append(prereq['id'])
 
                         metadata={    
                             "title":item['attributes']['title']  ,                            
                             "field_pipeline":item['relationships']['field_pipeline']['data']['id'],   
                             "field_id":uuid,
                             "field_parameters":item['attributes']['field_parameters'],
-                            #"field_prerequisite_tasks":item['attributes']['field_path_to_crush_agent'],
+                            "field_prerequisite_tasks":prereqs,
                             "uuid":uuid                                              
                         }                  
 
