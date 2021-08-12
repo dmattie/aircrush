@@ -35,7 +35,7 @@ def sync(host):
     for project in ProjectDict:
         print(f"{ProjectDict[project].title}, {project} {ProjectDict[project].field_username}")
         try:
-            cmd='python3.8 ' + ProjectDict[project].field_path_to_crush_agent + '/project_status.py ' + ProjectDict[project].field_path_to_exam_data
+            #cmd='python3.8 ' + ProjectDict[project].field_path_to_crush_agent + '/project_status.py ' + ProjectDict[project].field_path_to_exam_data
             cmd='python3.8 ' + ProjectDict[project].field_path_to_crush_agent + '/ps2.py ' + ProjectDict[project].field_path_to_exam_data
             #cmd="python3.8 --version"
             print(cmd)

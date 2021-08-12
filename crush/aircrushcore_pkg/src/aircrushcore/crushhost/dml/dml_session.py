@@ -21,16 +21,24 @@ class SessionRepository():
             self.Project=""
             print("Unrestricted")
 
+        if "participant" in kwargs:
+            PR=ParticipantRepository(host=self.HOST, project=self.Project)
+            self.KnownParticipants=PR.getOne(kwargs['participant'])            
+            print(f"Participant limited to {kwargs['participant']}")
+        else:
+            PR=ParticipantRepository(host=self.HOST, project=self.Project)
+            self.KnownParticipants=PR.getKnownParticipants()
+            print("Sessions unrestricted to any participant in the project")
+
         ParticipantRepositoryMetadata={
             "host":self.HOST
         }
         if self.Project:
             ParticipantRepositoryMetadata['project']=self.Project
             
-        print(f"restricting sessons to {self.Project}")
-        PR=ParticipantRepository(host=self.HOST, project=self.Project)
-        
-        self.KnownParticipants=PR.getKnownParticipants()
+        print(f"restricting sessions to {self.Project}")
+                
+        #self.KnownParticipants=PR.getKnownParticipants()
         self.Sessions=self.getKnownSessions()
         
             

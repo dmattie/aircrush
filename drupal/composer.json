@@ -22,7 +22,8 @@
         "drupal/core-vendor-hardening": "^9.1",
         "drupal/radix": "^4.10",
         "drupal/unique_entity_title": "^1.2",
-        "drupal/views_bootstrap": "^4.3"
+        "drupal/views_bootstrap": "^4.3",
+        "drush/drush": "^10.5"
     },
     "conflict": {
         "drupal/drupal": "*"

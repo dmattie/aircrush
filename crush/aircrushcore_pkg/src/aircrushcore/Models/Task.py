@@ -21,3 +21,5 @@ class Task():
             self.field_parameters=m['field_parameters']
         if 'field_prerequisite_tasks' in m:
             self.field_prerequisite_tasks=m['field_prerequisite_tasks']
+        if 'field_operator' in m:
+            self.field_operator=m['field_operator']

@@ -14,3 +14,9 @@ Singularity container:  Thanks! It took a little tweaking from the docker versio
 
 
 Createing tasks in heartbeat:  payload in reository malformed, parameters is dict and pipeline isn't guid
+
+Had to run this after using drush:  sudo docker exec 66c3bc9e233c composer require drush/drush
+
+# Commands to remember
+sudo docker container ls
+sudo docker exec 64e7629403f2 drush user-information admin

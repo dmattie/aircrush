@@ -35,4 +35,6 @@ class Project():
         if 'body' in m:
             self.body=m['body']     
         if "uuid" in m:
-            self.uuid=m['uuid']            
+            self.uuid=m['uuid']        
+        if "field_activated_pipelines" in m:
+            self.field_activated_pipelines=m['field_activated_pipelines']    

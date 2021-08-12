@@ -11,17 +11,17 @@ import traceback
 
 def sync(host):
         
-    crushHOST=None
+    crushHOST=host
 
-    try:
-        crushHOST=crush(
-            endpoint="http://localhost:81/",
-            username="crush",
-            password="crush"
-            )
-    except:
-        traceback.print_exc()
-        print("\n\n==========\nERROR: Unable to connect to crush host\n==========\n\n")
+    # try:
+    #     crushHOST=crush(
+    #         endpoint="http://localhost:81/",
+    #         username="crush",
+    #         password="crush"
+    #         )
+    # except:
+    #     traceback.print_exc()
+    #     print("\n\n==========\nERROR: Unable to connect to crush host\n==========\n\n")
         
     R=None
     try:

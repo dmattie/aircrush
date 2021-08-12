@@ -26,6 +26,12 @@ class ProjectRepository():
 
                         uuid=item['id']
 
+                        activepipelines=[]
+
+                        for ap in item['relationships']['field_activated_pipelines']['data']:                            
+                            if ap['type']=='node--pipeline':                                
+                                activepipelines.append(ap['id'])
+
                         metadata={    
                             "title":item['attributes']['title']  ,                            
                             "field_host":item['attributes']['field_host'] ,   
@@ -33,6 +39,7 @@ class ProjectRepository():
                             "field_password":item['attributes']['field_password'],
                             "field_path_to_crush_agent":item['attributes']['field_path_to_crush_agent'],
                             "field_path_to_exam_data":item['attributes']['field_path_to_exam_data'],
+                            "field_activated_pipelines":activepipelines ,   
                             "body":item['attributes']['body'],
                             "uuid":uuid                                              
                         }                       
