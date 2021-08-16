@@ -1,0 +1,25 @@
+# Create an AND and an OR GROUP
+filter[failed-group][group][conjunction]=AND
+filter[or-group][group][conjunction]=OR
+
+# Put the failed group into the OR GROUP
+filter[failed-group][group][memberOf]=or-group
+
+# Create the failed filter and put it in the AND GROUP
+filter[failed-filter][condition][path]=attributes.field_status
+filter[failed-filter][condition][value]=failed
+filter[failed-filter][condition][memberOf]=failed-group
+
+# Create the retries filter and put it in the failed GROUP
+filter[retries-filter][condition][path]=attributes.field_remaining_retries
+filter[retries-filter][condition][operator]=%3E
+filter[sticky-filter][condition][value]=0
+filter[sticky-filter][condition][memberOf]=failed-group
+
+# Create the notstarted filter and put it in the OR GROUP
+filter[notstarted-filter][condition][path]=attributes.field_status
+filter[notstarted-filter][condition][value]=notstarted
+filter[notstarted-filter][condition][memberOf]=or-group
+
+
+filter[or-group][group][conjunction]=OR&filter[notstarted-filter][condition][path]=field_status&filter[notstarted-filter][condition][value]=notstarted&filter[notstarted-filter][condition][memberOf]=or-group&filter[failed-group][group][conjunction]=AND&filter[failed-filter][condition][path]=field_status&filter[failed-filter][condition][value]=failed&filter[failed-filter][condition][memberOf]=failed-group&filter[retries-filter][condition][path]=field_remaining_retries&filter[retries-filter][condition][operator]=>&filter[retries-filter][condition][value]=0&filter[retries-filter][condition][memberOf]=failed-group&filter[failed-group][condition][memberOf]=or-group
