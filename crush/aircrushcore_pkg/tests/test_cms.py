@@ -64,7 +64,7 @@ def create_sample_pipeline():
         "cms_host":crush_host
     }
     p = Pipeline(metadata=metadata)
-    puid=p.upsert()
+    puid=p.upsert()    
     return puid
 
 def create_sample_task(puid:str):
@@ -104,10 +104,19 @@ def test_login():
 def test_get_project():
     #Create test project, get it, then delete it
     proj_collection=ProjectCollection(cms_host=crush_host)
-    puid=create_sample_project()  
-    p = proj_collection.get_one(uuid=puid)
-    assert(p.title=="UAT Test for test_guids") 
-    p.delete()
+    puid1=create_sample_project()  
+    puid2=create_sample_project()  
+    p1 = proj_collection.get_one(uuid=puid1)
+    assert(p1.title=="UAT Test for test_guids") 
+    
+
+    multiple_projects = proj_collection.get()
+    assert(len(multiple_projects)>=2)
+    
+    p1.delete()
+    p2 = proj_collection.get_one(uuid=puid2)    
+    p2.delete()
+
 
 def test_get_subject():
     puid=create_sample_project()

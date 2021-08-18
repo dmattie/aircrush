@@ -9,6 +9,7 @@ class Subject():
         self.uuid=None
         self.isbids=""
         self.HOST=None
+        self.published=True
 
         if 'metadata' in kwargs:
             m=kwargs['metadata']
@@ -23,7 +24,9 @@ class Subject():
         if 'isbids' in m:
             self.isbids=m['isbids']
         if "cms_host" in m:
-            self.HOST=m['cms_host']             
+            self.HOST=m['cms_host']    
+        if "published" in m:
+            self.published=m['published']         
 
 
     def upsert(self):
@@ -35,6 +38,7 @@ class Subject():
                     "attributes":{
                         "title": self.title,                                                    
                         "field_status": self.field_status,
+                        "status":self.published,
                     },
                     "relationships":{
                         "field_project":{
@@ -48,7 +52,7 @@ class Subject():
             }
 
             if self.uuid:   #Update existing        
-                payload.data.id=self.uuid                                                                  
+                payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/participant/{self.uuid}",payload)                
             else:            
                 r= self.HOST.post("jsonapi/node/participant",payload)

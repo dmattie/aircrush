@@ -6,7 +6,7 @@ import asyncio, asyncssh, sys
 class PipelineCollection():
 
     def __init__(self,**kwargs):    
-        self.pipelines={}    
+        
         
         if "cms_host" in kwargs:
             self.HOST=kwargs['cms_host']
@@ -23,7 +23,7 @@ class PipelineCollection():
             return None
             
     def get(self,**kwargs):
-
+        pipelines={}    
 
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
@@ -55,8 +55,8 @@ class PipelineCollection():
                             "cms_host":self.HOST                                               
                         }
 
-                        self.pipelines[item['id']]=Pipeline(metadata=metadata)                
-            return self.pipelines
+                        pipelines[item['id']]=Pipeline(metadata=metadata)                
+            return pipelines
         else:
             return None
 

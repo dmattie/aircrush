@@ -6,7 +6,7 @@ import asyncio, asyncssh, sys
 class TaskInstanceCollection():
 
     def __init__(self,**kwargs):    
-        self.taskinstances={}    
+        
         self.pipeline=None   
         self.session=None
         self.task=None       
@@ -34,7 +34,7 @@ class TaskInstanceCollection():
             return None
             
     def get(self,**kwargs):
-
+        taskinstances={}    
 
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
@@ -85,8 +85,8 @@ class TaskInstanceCollection():
                         }
 
 
-                        self.taskinstances[item['id']]=TaskInstance(metadata=metadata)                
-            return self.taskinstances
+                        taskinstances[item['id']]=TaskInstance(metadata=metadata)                
+            return taskinstances
         else:
             return None
 

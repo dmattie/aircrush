@@ -8,6 +8,7 @@ class Session():
         self.field_status=""
         self.uuid=None
         self.HOST=None
+        self.published=True
 
         if 'metadata' in kwargs:
             m=kwargs['metadata']
@@ -21,7 +22,9 @@ class Session():
             if m['uuid'] != "":
                 self.uuid=m['uuid']
         if "cms_host" in m:
-            self.HOST=m['cms_host']      
+            self.HOST=m['cms_host']    
+        if "published" in m:
+            self.published=m['published']                 
 
     def upsert(self):
 
@@ -31,6 +34,7 @@ class Session():
                     "attributes":{
                         "title": self.title,                                                    
                         "field_status": self.field_status,
+                        "status":self.published
                     },
                     "relationships":{
                         "field_participant":{
@@ -42,9 +46,9 @@ class Session():
                     }              
                 }
             }
-            
+
             if self.uuid:   #Update existing                  
-                payload.data.id=self.uuid                                                                  
+                payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/session/{self.uuid}",payload)                
             else:            
                 r= self.HOST.post("jsonapi/node/session",payload)

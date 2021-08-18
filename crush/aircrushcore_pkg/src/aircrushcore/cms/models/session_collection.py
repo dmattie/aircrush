@@ -6,8 +6,9 @@ import asyncio, asyncssh, sys
 class SessionCollection():
 
     def __init__(self,**kwargs):    
-        self.sessions={}    
+        
         self.subject=None
+        self.project=None
     
 
         if "cms_host" in kwargs:
@@ -17,7 +18,7 @@ class SessionCollection():
             raise Exception("\nERROR:SessionCollection::CMS host not specified\n")
 
         if "subject" in kwargs:
-            self.project=kwargs['subject']        
+            self.subject=kwargs['subject']        
     
 
     def get_one(self,uuid:str):
@@ -30,7 +31,7 @@ class SessionCollection():
             
     def get(self,**kwargs):
 
-
+        sessions={}    
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
             filter_uuid=f"&filter[id][value]={uuid}"
@@ -63,8 +64,8 @@ class SessionCollection():
                             "cms_host":self.HOST                                               
                         }
 
-                        self.sessions[item['id']]=Session(metadata=metadata)                
-            return self.sessions
+                        sessions[item['id']]=Session(metadata=metadata)                
+            return sessions
         else:
             return None
 

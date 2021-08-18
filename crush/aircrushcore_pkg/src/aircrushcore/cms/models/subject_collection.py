@@ -7,7 +7,7 @@ class SubjectCollection():
     
     
     def __init__(self,**kwargs):    
-        self.subjects={}    
+        
         self.project=None
     
 
@@ -33,7 +33,7 @@ class SubjectCollection():
             
     def get(self,**kwargs):
 
-
+        subjects={}    
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
             filter_uuid=f"&filter[id][value]={uuid}"
@@ -66,7 +66,7 @@ class SubjectCollection():
                             "cms_host":self.HOST                                               
                         }
 
-                        self.subjects[item['id']]=Subject(metadata=metadata)                
-            return self.subjects
+                        subjects[item['id']]=Subject(metadata=metadata)                
+            return subjects
         else:
             return None

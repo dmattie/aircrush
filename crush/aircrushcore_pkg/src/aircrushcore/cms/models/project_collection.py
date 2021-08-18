@@ -6,7 +6,7 @@ from .project import Project
 class ProjectCollection():
     def __init__(self,cms_host:Host):
         self.HOST = cms_host
-        self.Projects={} 
+        #self.Projects={} 
 
     def get_one(self,uuid:str):
         col=self.get(uuid=uuid)
@@ -14,7 +14,7 @@ class ProjectCollection():
         return p
         
     def get(self,**kwargs):
-
+        Projects={}
 
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
@@ -22,7 +22,7 @@ class ProjectCollection():
         else:
             filter=""
 
-        url=f"jsonapi/node/project?{filter}"
+        url=f"jsonapi/node/project?{filter}"        
 
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
@@ -54,9 +54,9 @@ class ProjectCollection():
                             "cms_host":self.HOST                                             
                         }                       
 
-                        self.Projects[item['id']]=Project(metadata=metadata)   
+                        Projects[item['id']]=Project(metadata=metadata)   
 
             
-            return self.Projects                     
+            return Projects                     
 
 
