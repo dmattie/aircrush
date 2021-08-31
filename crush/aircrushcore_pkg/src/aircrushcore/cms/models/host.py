@@ -13,7 +13,7 @@ class Host:
           username=self.username,
           password=self.password)
         self.session=self.connection.get_connection_token()
-        print(f"host.session={self.session}")
+        #print(f"host.session={self.session}")
 
     def get(self,url):
       head = {"Accept":"application/vnd.api+json","Content-Type":"application/vnd.api+json","X-CSRF-Token":self.connection.csrf_token}
@@ -30,7 +30,7 @@ class Host:
     def post (self,url,payload):
       head = {"Accept":"application/vnd.api+json","Content-Type":"application/vnd.api+json","X-CSRF-Token":self.connection.csrf_token}
       url=f"{self.connection.endpoint}{url}"
-      print(self.session)
+      #print(self.session)
       r = self.session.post(url, json.dumps(payload), headers=head)
       
       return r      

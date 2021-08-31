@@ -39,7 +39,6 @@ class Sync():
 
             subjects=subject_collection.get()
             
-
             try:
                 agentExams=json.loads(agentresult.stdout)
             except:                
@@ -59,7 +58,7 @@ class Sync():
                         "field_project":project,
                         "uuid":None,
                         "cms_host":self.crush_host            
-                    }
+                    }                
                 
                 #Look for existing subject
                 for subject_guid in subjects:
@@ -71,8 +70,9 @@ class Sync():
                 participant_uuid=s.upsert()                    
                                 
                 #Upsert any associated sessions--------------------------------
+                
                 sessions=session_collection.get(subject=subject.uuid)
-
+                
             
                 for data_commons_sessions in agentExams['participants'][participant]['sessions']:                            
                     
@@ -91,8 +91,9 @@ class Sync():
                         if data_commons_sessions==cms_session.title:                            
                             session_metadata['uuid']=cms_session.uuid
 
-                    s = Session(metadata=session_metadata)
-                    s.upsert()
+                    s = Session(metadata=session_metadata)                    
+                    s.upsert()     
+
                 #Unpublish any sessions not found
                 for session_guid in sessions:
                     if sessions[session_guid].title not in agentExams['participants'][participant]['sessions']:
@@ -118,7 +119,7 @@ class Sync():
             project = proj_collection.get_one(project_uuid)
     
             cmd=f"python3.8 {project.field_path_to_crush_agent}/ps2.py {project.field_path_to_exam_data}"
-            
+            print(cmd)
             asyncio.get_event_loop().run_until_complete(
                     self._run_project_status_client(
                         host=project.field_host,

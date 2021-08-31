@@ -48,9 +48,9 @@ class SessionCollection():
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
-            if len(r.json()['data'])==0:
-                print(f"SessionCollection:: No sessions found on CRUSH Host.[{url}]")                
-            else:       
+            if len(r.json()['data'])!=0:
+            #    print(f"SessionCollection:: No sessions found on CRUSH Host.[{url}]")                
+            #else:       
                 for item in r.json()['data']:
                     if(item['type']=='node--session'):
                         

@@ -1,26 +1,25 @@
 
 from aircrushcore.cms.models.host import Host
-from .project import Project
+from .compute_node import ComputeNode
 
 
-class ProjectCollection():
+class ComputeNodeCollection():
     def __init__(self,cms_host:Host):
         self.HOST = cms_host
-        #self.Projects={} 
 
     def get_one(self,uuid:str):
         col=self.get(uuid=uuid)
-        p = col[list(col)[0]]
-        return p
+        x = col[list(col)[0]]
+        return x
     
-    def get_one_by_name(self,project_name:str):
-        col=self.get(filter=f"filter[title][value]={project_name}")
+    def get_one_by_title(self,title:str):
+        col=self.get(filter=f"filter[title][value]={title}")
         if(len(col)>0):
             p = col[list(col)[0]]
             return p
         
     def get(self,**kwargs):
-        Projects={}
+        Nodes={}
 
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
@@ -35,42 +34,33 @@ class ProjectCollection():
             filter_arg=""
                         
 
-        url=f"jsonapi/node/project?{filter}{filter_arg}"     
-        print(url)   
+        url=f"jsonapi/node/compute_node?{filter}{filter_arg}"             
 
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
             if len(r.json()['data'])==0:
-                print("ProjectRepository:: No Projects found on CRUSH Host.")                
+                print("ComputeNodeCollection:: No ComputeNodes found on CRUSH Host.")                
             else:       
                 for item in r.json()['data']:
-                    if(item['type']=='node--project'):
+                    if(item['type']=='node--compute_node'):
 
                         uuid=item['id']
-
-                        activepipelines=[]
-
-                        for ap in item['relationships']['field_activated_pipelines']['data']:                            
-                            if ap['type']=='node--pipeline':                                
-                                activepipelines.append(ap['id'])
 
                         metadata={    
                             "title":item['attributes']['title']  ,                            
                             "field_host":item['attributes']['field_host'] ,   
                             "field_username":item['attributes']['field_username'],
                             "field_password":item['attributes']['field_password'],
-                            "field_path_to_crush_agent":item['attributes']['field_path_to_crush_agent'],
-                            "field_path_to_exam_data":item['attributes']['field_path_to_exam_data'],
-                            "field_activated_pipelines":activepipelines ,   
+                            "field_working_directory":item['attributes']['field_working_directory'],                            
                             "body":item['attributes']['body'],
                             "uuid":uuid,
                             "cms_host":self.HOST                                             
                         }                       
 
-                        Projects[item['id']]=Project(metadata=metadata)   
+                        Nodes[item['id']]=ComputeNode(metadata=metadata)   
 
             
-            return Projects                     
+            return Nodes                     
 
 

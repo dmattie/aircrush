@@ -1,4 +1,5 @@
-
+from aircrushcore.cms.models.project import Project
+from aircrushcore.cms.models.project_collection import ProjectCollection
 class Subject():
     
     def __init__(self,**kwargs):
@@ -73,3 +74,7 @@ class Subject():
             raise ValueError(f"Subject deletion failed [{self.uuid}]")
 
         return True
+
+    def project(self):
+        project = ProjectCollection(cms_host=self.HOST).get_one(uuid=self.field_project)        
+        return project

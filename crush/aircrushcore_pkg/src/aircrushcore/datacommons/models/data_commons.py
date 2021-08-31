@@ -30,5 +30,10 @@ class DataCommons():
         projects=os.listdir(f"{self.commons_path}/projects/")
         return projects
 
+    def Subjects(self,project: str):
+
+        subjects=os.listdir(f"{self.commons_path}/projects/{project}")
+        return subjects
+
   
             

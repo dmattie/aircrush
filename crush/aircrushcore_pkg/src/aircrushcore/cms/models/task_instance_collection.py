@@ -33,6 +33,14 @@ class TaskInstanceCollection():
         else:
             return None
             
+    def __nvl(self,x,y):
+        try:
+            if x:
+                print(f"\nxxxxxxxxxxxxxxx {x} xxxxxxxxxxxxxxx\n")
+                return x
+        except:
+            return y
+        
     def get(self,**kwargs):
         taskinstances={}    
 
@@ -61,32 +69,40 @@ class TaskInstanceCollection():
         url=f"jsonapi/node/task_instance?{filter_uuid}{filter_pipeline}{filter_session}{filter_task}"
         
         r = self.HOST.get(url)
-        if r.status_code==200:  #We can connect to CRUSH host           
-              
+        if r.status_code==200:  #We can connect to CRUSH host                       
             if len(r.json()['data'])==0:
                 print(f"TaskInstanceCollection:: No task instances found on CRUSH Host.[{url}]")                
             else:    
-                  
+                #print(r.json())
                 for item in r.json()['data']:
                     if(item['type']=='node--task_instance'):
                         
                         uuid=item['id']
 
-                        metadata={    
-                            "title":item['attributes']['title']  ,                            
-                            "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
-                            "field_associated_participant_ses":item['relationships']['field_associated_participant_ses']['data']['id'],
-                            "body":item['attributes']['body']['value'],
-                            "field_remaining_retries":item['attributes']['field_remaining_retries'],
-                            "field_status":item['attributes']['field_status'],
-                            "field_task":item['relationships']['field_task']['data']['id'],                            
-                            "uuid":uuid,
-                            "cms_host":self.HOST                                               
-                        }
+                        try:
+                            body=item['attributes']['body']['value']
+                        except:
+                            body=""
+
+                        try:
+                            metadata={    
+                                "title":item['attributes']['title']  ,                            
+                                "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
+                                "field_associated_participant_ses":item['relationships']['field_associated_participant_ses']['data']['id'],
+                                "body":body,
+                                "field_remaining_retries":item['attributes']['field_remaining_retries'],
+                                "field_status":item['attributes']['field_status'],
+                                "field_task":item['relationships']['field_task']['data']['id'],                            
+                                "uuid":uuid,
+                                "cms_host":self.HOST                                               
+                            }
+                            #print("\n\n------------------------------------\n\n")
 
 
-                        taskinstances[item['id']]=TaskInstance(metadata=metadata)                
+                            taskinstances[item['id']]=TaskInstance(metadata=metadata)                
+                        except:
+                            print("ERROR:Some task instances may be malformed and ignored")
             return taskinstances
-        else:
+        else:            
             return None
 

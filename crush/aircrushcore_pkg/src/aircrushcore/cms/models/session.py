@@ -1,3 +1,5 @@
+from aircrushcore.cms.models.subject import Subject
+from aircrushcore.cms.models.subject_collection import SubjectCollection
 
 class Session():
     
@@ -45,16 +47,15 @@ class Session():
                         }                         
                     }              
                 }
-            }
-
+            }            
             if self.uuid:   #Update existing                  
                 payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/session/{self.uuid}",payload)                
             else:            
-                r= self.HOST.post("jsonapi/node/session",payload)
+                r= self.HOST.post("jsonapi/node/session",payload)                     
 
             if(r.status_code!=200 and r.status_code!=201):  
-                 raise ValueError(f"Session upsert failed [{self.uuid}/{self.title}] on CMS HOST: {r.status_code}\n\t{r.reason}")                             
+                raise ValueError(f"Session upsert failed [{self.uuid}/{self.title}] on CMS HOST: {r.status_code}\n\t{r.reason}")                             
             else:    
                 self.uuid= r.json()['data']['id']     
                 return r.json()['data']['id']          
@@ -69,3 +70,7 @@ class Session():
             raise ValueError(f"Session deletion failed [{self.uuid}]")
 
         return True
+
+    def subject(self):
+        subject = SubjectCollection(cms_host=self.HOST).get_one(uuid=self.field_participant)
+        return subject

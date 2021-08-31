@@ -1,3 +1,7 @@
+from aircrushcore.cms.models.task_collection import TaskCollection
+from aircrushcore.cms.models.task import Task
+from aircrushcore.cms.models.session import Session
+from aircrushcore.cms.models.session_collection import SessionCollection
 
 class TaskInstance():
     
@@ -35,6 +39,8 @@ class TaskInstance():
             if 'uuid' in m:
                 self.uuid=m['uuid']                
 
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     def upsert(self):
 
@@ -95,3 +101,11 @@ class TaskInstance():
             raise ValueError(f"TaskInstance deletion failed [{self.uuid}]\n\t{r.status_code}\n\t{r.reason}]")
 
         return True            
+
+    def task_definition(self):
+        task = TaskCollection(cms_host=self.HOST).get_one(uuid=self.field_task)
+        return task
+    def associated_session(self):
+        session = SessionCollection(cms_host=self.HOST).get_one(uuid=self.field_associated_participant_ses)
+        return session
+        

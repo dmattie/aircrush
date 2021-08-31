@@ -11,3 +11,7 @@ from .task_collection import TaskCollection
 from .task import Task
 from .task_instance_collection import TaskInstanceCollection
 from .task_instance import TaskInstance
+from .compute_node import ComputeNode
+from .compute_node_collection import ComputeNodeCollection
+
+
