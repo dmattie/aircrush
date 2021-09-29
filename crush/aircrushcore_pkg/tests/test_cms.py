@@ -67,6 +67,8 @@ def test_get_session():
 
     assert(s.title=="SES-01")
     assert(isinstance(s,Session)==True)
+    
+    #assert(len(s.active_pipelines())>0)
     assert(s.delete()==True)
     
     subj = subj_collection.get_one(uuid=suid)
@@ -74,6 +76,37 @@ def test_get_session():
 
     p = proj_collection.get_one(uuid=puid)
     p.delete()
+
+def test_update_session():
+    puid=create_sample_project()
+    suid = create_sample_subject(puid=puid)
+    sessuid = create_sample_session(suid=suid)
+    print(f"===================SAMPLE CREATED {sessuid}==========================")
+
+    proj_collection=ProjectCollection(cms_host=crush_host)
+    subj_collection=SubjectCollection(cms_host=crush_host)
+    sess_collection=SessionCollection(cms_host=crush_host)
+
+    s = sess_collection.get_one(uuid=sessuid)
+    print(f"===================SAMPLE RETRIEVED {s.uuid}==========================")
+
+    assert(s.title=="SES-01")
+    assert(isinstance(s,Session)==True)
+    
+    s.title="SES-01.1"
+    upserted_suid = s.upsert()
+    print(f"===================SAMPLE UPSERTED {upserted_suid}==========================")
+
+
+    assert(upserted_suid==sessuid)
+    assert(s.delete()==True)
+        
+    subj = subj_collection.get_one(uuid=suid)
+    subj.delete()
+
+    p = proj_collection.get_one(uuid=puid)
+    p.delete()
+
 
 
 def test_get_pipeline():
@@ -100,7 +133,7 @@ def test_get_task():
     assert(t.title=='automated-test-task-01')
     assert(t.field_id=="automated_test_task_01")
     assert(t.field_parameters=="a=b,c=d")
-    assert(t.field_operator=="test_operator")
+    assert(t.field_operator=="echo_operator")
     
     t.delete()
     p.delete()
@@ -127,6 +160,8 @@ def test_get_task_instance():
 
     assert(ti.title=="automated-test-task-instance-aa")
     assert(isinstance(ti,TaskInstance)==True)
+    upserted_uuid = ti.upsert()
+    assert(upserted_uuid==task_instance_uid)
     assert(ti.delete()==True)
     
     task = task_collection.get_one(uuid=task_uid)
@@ -151,4 +186,52 @@ def test_get_compute_node():
     assert(n.field_working_directory=="~/scott")
     
     n.delete()
+    
+def test_allocate_session_to_compute_node():
+    proj_collection=ProjectCollection(cms_host=crush_host)
+    subj_collection=SubjectCollection(cms_host=crush_host)
+    sess_collection=SessionCollection(cms_host=crush_host)
+
+    nuid=create_sample_compute_node()
+    node_collection=ComputeNodeCollection(cms_host=crush_host)
+    n=node_collection.get_one(uuid=nuid)
+    
+    puid=create_sample_project()
+    project = proj_collection.get_one(uuid=puid)
+
+    suid = create_sample_subject(puid=puid)
+    sessuid = create_sample_session(suid=suid)
+
+    pipeline_uid=create_sample_pipeline()
+    pipe_collection=PipelineCollection(cms_host=crush_host)
+    
+    tuid=create_sample_task(pipeline_uid)
+    
+    project.field_activated_pipelines = [pipeline_uid]
+    project.upsert()
+
+    n.allocate_session(sessuid)
+    #Let's see if it allocated the task instance to the compute node        
+    ti_col = TaskInstanceCollection(cms_host=crush_host,pipeline=pipeline_uid,task=tuid,session=sessuid)
+    tis=ti_col.get()
+
+    assert(n.title=='worker-node-01')
+    assert(len(tis)==1)
+
+    for ti in tis:
+        t=ti_col.get_one(ti)
+        t.delete()
+    
+    
+    n.delete()
+
+    sess = sess_collection.get_one(uuid=sessuid)
+    sess.delete()
+
+    subj = subj_collection.get_one(uuid=suid)
+    subj.delete()
+
+    p = proj_collection.get_one(uuid=puid)
+    p.delete()
+
     

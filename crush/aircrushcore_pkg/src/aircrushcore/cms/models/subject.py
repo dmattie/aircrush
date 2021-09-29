@@ -10,7 +10,7 @@ class Subject():
         self.uuid=None
         self.isbids=""
         self.HOST=None
-        self.published=True
+        self.published=None
 
         if 'metadata' in kwargs:
             m=kwargs['metadata']
@@ -38,22 +38,36 @@ class Subject():
                     #  "id":self.uuid,                                 
                     "attributes":{
                         "title": self.title,                                                    
-                        "field_status": self.field_status,
-                        "status":self.published,
-                    },
-                    "relationships":{
-                        "field_project":{
-                            "data":{
-                                "type":"node--project",
-                                "id":self.field_project
-                            }
-                        }                         
-                    }              
+                        "field_status": self.field_status,                        
+                    }, 
+                    "relationships":{}                            
                 }
             }
+            #   "relationships":{
+            #             "field_project":{
+            #                 "data":{
+            #                     "type":"node--project",
+            #                     "id":self.field_project
+            #                 }
+            #             }                         
+            #         }   
+            if not self.published == None:
+                #status is the published flag
+                payload['data']['attributes']['status']=self.published
+
+            if self.field_project:
+                field_project={
+                    "data":{
+                        "id":self.field_project,
+                        "type":"node--project"
+                    }
+                }
+                payload['data']['relationships']['field_project']=field_project
+                
 
             if self.uuid:   #Update existing        
-                payload['data']['id']=self.uuid                                                                  
+                payload['data']['id']=self.uuid   
+                                                                           
                 r= self.HOST.patch(f"jsonapi/node/participant/{self.uuid}",payload)                
             else:            
                 r= self.HOST.post("jsonapi/node/participant",payload)

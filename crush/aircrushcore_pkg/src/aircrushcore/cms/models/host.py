@@ -2,6 +2,7 @@ from .authentication import host_connection
 import sys
 import requests
 import json
+from requests_toolbelt.utils import dump
 
 class Host:
     def __init__(self,username:str, password:str ,endpoint:str):            
@@ -25,6 +26,9 @@ class Host:
       head = {"Accept":"application/vnd.api+json","Content-Type":"application/vnd.api+json","X-CSRF-Token":self.connection.csrf_token}
       url=f"{self.connection.endpoint}{url}"
       r = self.session.patch(url, json.dumps(payload), headers=head)
+      # data = dump.dump_all(r)
+      # print(data.decode('utf-8'))
+      
       return r
 
     def post (self,url,payload):
@@ -32,7 +36,8 @@ class Host:
       url=f"{self.connection.endpoint}{url}"
       #print(self.session)
       r = self.session.post(url, json.dumps(payload), headers=head)
-      
+      #data = dump.dump_all(r)
+      #print(data.decode('utf-8'))      
       return r      
 
     def delete (self,url):

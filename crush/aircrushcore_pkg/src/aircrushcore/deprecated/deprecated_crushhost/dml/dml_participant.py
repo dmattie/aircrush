@@ -79,7 +79,7 @@ class ParticipantRepository():
         tar_uid=self.gzSubject(project,subject)
 
         print(tar_uid)
-        source=f"{project.username}@{project.host"
+        source=f"{project.username}@{project.host}"
 
     def gzSubject(self,project,subject):
         uid=uuid.uuid4()

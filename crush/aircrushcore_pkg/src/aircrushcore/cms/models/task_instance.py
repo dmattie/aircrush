@@ -2,6 +2,7 @@ from aircrushcore.cms.models.task_collection import TaskCollection
 from aircrushcore.cms.models.task import Task
 from aircrushcore.cms.models.session import Session
 from aircrushcore.cms.models.session_collection import SessionCollection
+import json
 
 class TaskInstance():
     
@@ -16,6 +17,8 @@ class TaskInstance():
         self.field_task=""
         self.uuid=None
         self.HOST=None
+        self.published=None
+        self.field_errorlog=None
     
         if 'metadata' in kwargs:
             m=kwargs['metadata']   
@@ -28,6 +31,8 @@ class TaskInstance():
                 self.field_pipeline=m['field_pipeline']
             if 'body' in m:
                 self.body=m['body']
+            if 'field_errorlog' in m:
+                self.errorlog=m['field_errorlog']
             if 'field_remaining_retries' in m:
                 self.field_remaining_retries=m['field_remaining_retries']
             if 'field_status' in m:
@@ -37,7 +42,10 @@ class TaskInstance():
             if "cms_host" in m:
                 self.HOST=m['cms_host']    
             if 'uuid' in m:
-                self.uuid=m['uuid']                
+                self.uuid=m['uuid'] 
+            if 'published' in m:
+                self.published=m['published'] #Published indicator is actually 'status'
+                print(f"setting published indicator {self.published}")
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -55,32 +63,77 @@ class TaskInstance():
                         "field_remaining_retries":self.field_remaining_retries,
                         "field_status":self.field_status
                     },
-                    "relationships":{
-                        "field_associated_participant_ses":{
+                     "relationships":{}
+                             
+                }
+            }
+             # "relationships":{
+                    #     "field_associated_participant_ses":{
+                    #         "data":{
+                    #             "id":self.field_associated_participant_ses,
+                    #             "type":"node--session"
+                    #         }
+                    #     },
+                    #     "field_pipeline":{
+                    #         "data":{
+                    #             "id":self.field_pipeline,
+                    #             "type":"node--pipeline"
+                    #         }
+                    #     },
+                    #     "field_task":{
+                    #         "data":{
+                    #             "id":self.field_task,
+                    #             "type":"node--task"
+                    #         }
+                    #     }                                                                   
+                    # }  
+            if not self.field_errorlog ==None:
+                payload['data']['attributes']['field_errorlog']=self.field_errorlog
+            if not self.published == None:
+                #status is the published flag
+                payload['data']['attributes']['status']=self.published
+
+            if self.field_associated_participant_ses:
+                field_associated_participant_ses={
                             "data":{
                                 "id":self.field_associated_participant_ses,
                                 "type":"node--session"
                             }
-                        },
-                        "field_pipeline":{
-                            "data":{
-                                "id":self.field_pipeline,
-                                "type":"node--pipeline"
-                            }
-                        },
-                        "field_task":{
+                    }
+                
+           #     payload['data']['relationships']['field_associated_participant_ses']['data']['type']='node-session'
+           #     payload['data']['relationships']['field_associated_participant_ses']['data']['id']=self.field_associated_participant_ses
+                payload['data']['relationships']['field_associated_participant_ses']=field_associated_participant_ses
+            
+            if self.field_pipeline:                
+                #payload['data']['relationships']['field_pipeline']['data']['type']='node--pipeline'
+                #payload['data']['relationships']['field_pipeline']['data']['id']=self.field_pipeline
+                field_pipeline={                
+                        "data":{
+                            "id":self.field_pipeline,
+                            "type":"node--pipeline"
+                        }                    
+                }
+                payload['data']['relationships']['field_pipeline']=field_pipeline
+
+            if self.field_task:                
+                field_task={
                             "data":{
                                 "id":self.field_task,
                                 "type":"node--task"
                             }
-                        }                                                                   
-                    }              
-                }
-            }
-            print(payload)
+                        }   
+               # payload['data']['relationships']['field_task']['data']['type']='node--task'
+               # payload['data']['relationships']['field_task']['data']['id']=self.field_task
+                payload['data']['relationships']['field_task']=field_task
+            
+                
             if self.uuid:   #Update existing  
                 
-                payload.data.id=self.uuid                                                                  
+                payload['data']['id']=self.uuid   
+                print(f"jsonapi/node/task_instance/{self.uuid}")  
+                print(json.dumps(payload))
+                                                                    
                 r= self.HOST.patch(f"jsonapi/node/task_instance/{self.uuid}",payload)                
             else:            
                 r= self.HOST.post("jsonapi/node/task_instance",payload)

@@ -1,4 +1,4 @@
-from aircrushcore.cms.models.subject import Subject
+from aircrushcore.cms.models import *
 from aircrushcore.cms.models.subject_collection import SubjectCollection
 
 class Session():
@@ -10,7 +10,8 @@ class Session():
         self.field_status=""
         self.uuid=None
         self.HOST=None
-        self.published=True
+        self.published=None
+        self.sticky=None
 
         if 'metadata' in kwargs:
             m=kwargs['metadata']
@@ -18,6 +19,7 @@ class Session():
             self.title=m['title']
         if 'field_participant' in m:
             self.field_participant=m['field_participant']
+
         if 'field_status' in m:
             self.field_status=m['field_status']      
         if 'uuid' in m:
@@ -26,7 +28,9 @@ class Session():
         if "cms_host" in m:
             self.HOST=m['cms_host']    
         if "published" in m:
-            self.published=m['published']                 
+            self.published=m['published']   
+        if "sticky" in m:
+            self.sticky=m['sticky']
 
     def upsert(self):
 
@@ -35,20 +39,37 @@ class Session():
                     "type":"node--session",                                                        
                     "attributes":{
                         "title": self.title,                                                    
-                        "field_status": self.field_status,
-                        "status":self.published
+                        "field_status": self.field_status,                        
                     },
-                    "relationships":{
-                        "field_participant":{
-                            "data":{
-                                "type":"node--participant",
-                                "id":self.field_participant
-                            }
-                        }                         
-                    }              
+                    "relationships":{}
+                    # "relationships":{
+                    #     "field_participant":{
+                    #         "data":{
+                    #             "type":"node--participant",
+                    #             "id":self.field_participant
+                    #         }
+                    #     }                         
+                    # }              
                 }
-            }            
-            if self.uuid:   #Update existing                  
+            }   
+
+            if not self.published == None:
+                #status is the published flag
+                payload['data']['attributes']['status']=self.published
+            if not self.sticky == None:
+                payload['data']['attributes']['sticky']=self.sticky
+            if self.field_participant:
+                field_participant={
+                    "data":{
+                        "id":self.field_participant,
+                        "type":"node--participant"
+                    }
+                }
+                payload['data']['relationships']['field_participant']=field_participant
+                                
+           
+             
+            if self.uuid:   #Update existing                               
                 payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/session/{self.uuid}",payload)                
             else:            
@@ -74,3 +95,15 @@ class Session():
     def subject(self):
         subject = SubjectCollection(cms_host=self.HOST).get_one(uuid=self.field_participant)
         return subject
+
+    def project(self):
+        project = ProjectCollection(cms_host=self.HOST).get_one(uuid=self.subject().field_project)
+        return project
+
+    def active_pipelines(self):
+            
+        subj=self.subject()
+        proj=self.project()
+        
+        return proj.field_activated_pipelines
+

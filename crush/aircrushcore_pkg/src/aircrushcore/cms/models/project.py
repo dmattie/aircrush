@@ -1,4 +1,4 @@
-
+import json
 class Project():
    
    
@@ -38,7 +38,7 @@ class Project():
             self.body=m['body']     
         if "uuid" in m:
             self.uuid=m['uuid']        
-        if "field_activated_pipelines" in m:
+        if "field_activated_pipelines" in m: #Tuple of UUIDs
             self.field_activated_pipelines=m['field_activated_pipelines']   
         if "cms_host" in m:
             self.HOST=m['cms_host'] 
@@ -58,8 +58,9 @@ class Project():
                         "field_path_to_exam_data":self.field_path_to_exam_data,
                         "field_username":self.field_username,
                         "body":self.body                        
-                    }
-                    ,
+                    },
+                    "relationships":{}
+                    
                     # "relationships":{
                     #     "field_activated_pipelines":{
                     #         "data":{
@@ -70,9 +71,20 @@ class Project():
                     # }              
                 }
             }
+            if self.field_activated_pipelines:
+                data=[]
+                for pipeline in self.field_activated_pipelines:
+                    data.append({
+                       "id":pipeline,
+                       "type":"node--pipeline"
+                    })
+                relationship_data={"data":data}
+                payload['data']['relationships']['field_activated_pipelines']=relationship_data
+                          
+            #print(json.dumps(payload))
 
             if self.uuid:   #Update existing    
-                payload.data.id=self.uuid                                                
+                payload['data']['id']=self.uuid                                                
                 r= self.HOST.patch(f"jsonapi/node/project/{self.uuid}",payload)
             else:
                 r= self.HOST.post("jsonapi/node/project",payload)

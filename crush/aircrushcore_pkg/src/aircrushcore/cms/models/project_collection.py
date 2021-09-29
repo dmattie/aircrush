@@ -10,9 +10,10 @@ class ProjectCollection():
 
     def get_one(self,uuid:str):
         col=self.get(uuid=uuid)
-        p = col[list(col)[0]]
-        return p
-    
+        if(len(col)>0):
+            p = col[list(col)[0]]
+            return p
+        return 
     def get_one_by_name(self,project_name:str):
         col=self.get(filter=f"filter[title][value]={project_name}")
         if(len(col)>0):
@@ -36,7 +37,7 @@ class ProjectCollection():
                         
 
         url=f"jsonapi/node/project?{filter}{filter_arg}"     
-        print(url)   
+        #print(url)   
 
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
@@ -66,9 +67,12 @@ class ProjectCollection():
                             "body":item['attributes']['body'],
                             "uuid":uuid,
                             "cms_host":self.HOST                                             
-                        }                       
+                        }         
 
-                        Projects[item['id']]=Project(metadata=metadata)   
+                        if item['attributes']['status']==True:                            
+                            Projects[item['id']]=Project(metadata=metadata)   
+                        else:
+                            print(f"Project ({item['attributes']['title']}) Ignored: Disabled/unpublished")
 
             
             return Projects                     

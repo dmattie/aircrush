@@ -64,16 +64,19 @@ class TaskInstanceCollection():
             filter_task=f"&filter[field_task.id][value]={self.task}"
         else:
             filter_task=""
+        if 'filter' in kwargs:
+            filter=kwargs['filter']            
+        else:
+            filter=""
+
         
 
-        url=f"jsonapi/node/task_instance?{filter_uuid}{filter_pipeline}{filter_session}{filter_task}"
-        
+        url=f"jsonapi/node/task_instance?{filter_uuid}{filter_pipeline}{filter_session}{filter_task}{filter}"
+        print(url)
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host                       
-            if len(r.json()['data'])==0:
-                print(f"TaskInstanceCollection:: No task instances found on CRUSH Host.[{url}]")                
-            else:    
-                #print(r.json())
+            if len(r.json()['data'])!=0:
+
                 for item in r.json()['data']:
                     if(item['type']=='node--task_instance'):
                         

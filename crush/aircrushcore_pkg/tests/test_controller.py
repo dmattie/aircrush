@@ -37,21 +37,19 @@ def test_sync_projects():
     
 
 def test_sync_subjects():
-    sync=Sync(aircrush)
-    
-    dc=DataCommons(aircrush)
-    
-
+    sync=Sync(aircrush)    
+    dc=DataCommons(aircrush)        
     sync.sync_subject_sessions()
     cms_project_collection = ProjectCollection(cms_host=crush_host)
     dc_project_list=dc.Projects()
+
     for dc_project in dc_project_list:
         
         dc_subjects = dc.Subjects(dc_project)
         project = cms_project_collection.get_one_by_name(dc_project)
-        cms_subjects=SubjectCollection(cms_host=crush_host, project=project.uuid)
-
-        assert(len(dc_subjects)==len(cms_subjects))
+        if project:            
+            cms_subjects=SubjectCollection(cms_host=crush_host, project=project.uuid)
+            assert(len(dc_subjects)==len(cms_subjects))
 
     #proj_collection=ProjectCollection(cms_host=crush_host)
      

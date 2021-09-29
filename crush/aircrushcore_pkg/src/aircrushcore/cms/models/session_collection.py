@@ -18,7 +18,7 @@ class SessionCollection():
             raise Exception("\nERROR:SessionCollection::CMS host not specified\n")
 
         if "subject" in kwargs:
-            self.subject=kwargs['subject']        
+            self.subject=kwargs['subject']              
     
 
     def get_one(self,uuid:str):
@@ -43,8 +43,7 @@ class SessionCollection():
         else:
             filter=""
 
-        url=f"jsonapi/node/session?{filter}{filter_uuid}"
-        
+        url=f"jsonapi/node/session?{filter}{filter_uuid}"        
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
@@ -61,6 +60,7 @@ class SessionCollection():
                             "field_participant":item['relationships']['field_participant']['data']['id'] ,   
                             "field_status":item['attributes']['field_status'],
                             "uuid":uuid,
+                            "sticky":item['attributes']['sticky'],
                             "cms_host":self.HOST                                               
                         }
 

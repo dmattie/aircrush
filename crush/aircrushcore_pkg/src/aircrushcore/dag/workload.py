@@ -16,10 +16,13 @@ class Workload:
             )  
 
     def get_next_task(self):
+        filter="filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
         tic = TaskInstanceCollection(cms_host=self.crush_host)
-        tic_col = tic.get()
-        t = tic_col[list(tic_col)[0]]
-        return t
+        tic_col = tic.get(filter=filter)
+        if(len(tic_col)>0):
+            t = tic_col[list(tic_col)[0]]
+            return t
+
 
     def count_of_incomplete_tasks(self):
         tic = TaskInstanceCollection(cms_host=self.crush_host)
@@ -40,10 +43,10 @@ class Workload:
             print(worker)
             if worker.isReady:
                 print(f"Invoking Task {task.field_operator} on host {worker.field_host}")
-
+                print(f"type======== {type(project.field_host)}")
                 conn=ComputeNodeConnection(hostname=project.field_host,username=project.field_username,password=project.field_password)
                 node=Compute(conn)
-                response = node.invoke(container="abc",command="whoami")
+                #response = node.invoke(container="abc",command="whoami")
 
                 
 

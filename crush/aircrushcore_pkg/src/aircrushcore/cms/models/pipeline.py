@@ -51,7 +51,7 @@ class Pipeline():
             }
             
             if self.uuid:   #Update existing                  
-                payload.data.id=self.uuid                                                                  
+                payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/pipeline/{self.uuid}",payload)                
             else:            
                 r= self.HOST.post("jsonapi/node/pipeline",payload)
