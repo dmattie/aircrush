@@ -7,7 +7,8 @@ class ComputeNode():
         self.field_host=""                
         self.field_username=""
         self.__field_password=""
-        self.field_working_directory=""    
+        self.field_working_directory=""   
+        self.field_account="" 
         self.body=""
         self.uuid=""  
         self.HOST=None    
@@ -27,6 +28,8 @@ class ComputeNode():
             self.__field_password=m['field_password']
         if 'field_working_directory' in m:            
             self.field_working_directory=m['field_working_directory']
+        if 'field_account' in m:
+            self.field_account=m['field_account']
         if 'body' in m:
             self.body=m['body']     
         if "uuid" in m:
@@ -44,7 +47,8 @@ class ComputeNode():
                         "field_host":self.field_host,
                         "field_username":self.field_username,
                         "field_password":self.__field_password,
-                        "field_working_directory":self.field_working_directory,                                                
+                        "field_working_directory":self.field_working_directory,    
+                        "field_account":self.field_account,                                            
                         "body":self.body                        
                     }                    
                 }
@@ -81,7 +85,7 @@ class ComputeNode():
         if self.uuid is None:
             raise Exception("ComputeNode is new.  Save before allocation of sessions")
 
-        pipe_col = PipelineCollection(cms_host=self.HOST)
+        #pipe_col = PipelineCollection(cms_host=self.HOST)
         #Get Session
         sess_col = SessionCollection(cms_host=self.HOST)            
         sess = sess_col.get_one(uuid=session_uuid)
@@ -91,10 +95,11 @@ class ComputeNode():
         ti_uuids = ti_col.get()
 
         ses_assigned_to_ti=None
-        if not ti_uuids is None:
+        if len(ti_uuids)>0:
             #TIs exist for this session, let's see if they are with us or elsewhere
-            #Get first task instance to determine allocated compute node    
-            ti = ti_col.get_one(uuid=ti_uuids[0])
+            #Get first task instance to determine allocated compute node   
+            print(ti_uuids)
+            ti = ti_col.get_one(uuid=ti_uuids[0])            
             ses_assigned_to_ti=ti.field_associated_participant_ses                 
 
         #If there are task instances assigned to this session or there are no task instances...
@@ -113,24 +118,23 @@ class ComputeNode():
                 
                 task_col = TaskCollection(cms_host=self.HOST,pipeline=pipeline_uuid)
                 for task_uuid in task_col.get():
+                                      
                     #Look for a task instance for this pipeline.task associated with this session
                     ti_col = TaskInstanceCollection(cms_host=self.HOST,pipeline=pipeline_uuid,task=task_uuid,session=session_uuid)
                     matching_tis = ti_col.get()
-                    if matching_tis is None:
+                    if len(matching_tis)==0:
                         #Create this task instance
                         task = task_col.get_one(task_uuid)
-                        pipeline = pipe_col.get_one(uuid=pipeline_uuid)
-                        print(pipeline.title)
-                        print(task.title)
-                        print(sess.title)
-                        new_title=f"{pipeline.title}/{task.title} on {sess.title}"
+                        pipeline = task.pipeline()#pipe_col.get_one(uuid=pipeline_uuid)
+                                               
                         metadata={
-                            "title":new_title,
+                            "title":f"{pipeline.title}/{task.title} on {sess.title}",
                             "field_associated_participant_ses":session_uuid,
                             "field_pipeline":pipeline_uuid,                                                                       
                             "field_task":task_uuid,
                             "cms_host":self.HOST  
                         }
+
                         ti = TaskInstance(metadata=metadata)
                         ti_uid=ti.upsert()
 

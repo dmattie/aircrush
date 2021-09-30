@@ -56,7 +56,7 @@ class TaskInstanceCollection():
             filter_pipeline=""
 
         if self.session!=None:
-            filter_session=f"&filter[field_session.id][value]={self.session}"
+            filter_session=f"&filter[field_associated_participant_ses.id][value]={self.session}"
         else:
             filter_session=""
 

@@ -1,4 +1,4 @@
-
+from aircrushcore.cms.models import *
 class Task():
     
     def __init__(self,**kwargs):
@@ -86,3 +86,8 @@ class Task():
             raise ValueError(f"Task deletion failed [{self.uuid}]\n\t{r.status_code}\n\t{r.reason}]")
 
         return True            
+    
+    def pipeline(self):
+        pipeline = PipelineCollection(cms_host=self.HOST).get_one(uuid=self.field_pipeline)
+        return pipeline
+

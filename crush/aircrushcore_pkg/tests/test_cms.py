@@ -191,6 +191,8 @@ def test_allocate_session_to_compute_node():
     proj_collection=ProjectCollection(cms_host=crush_host)
     subj_collection=SubjectCollection(cms_host=crush_host)
     sess_collection=SessionCollection(cms_host=crush_host)
+    task_collection=TaskCollection(cms_host=crush_host)
+    pipe_collection=PipelineCollection(cms_host=crush_host)
 
     nuid=create_sample_compute_node()
     node_collection=ComputeNodeCollection(cms_host=crush_host)
@@ -222,6 +224,9 @@ def test_allocate_session_to_compute_node():
         t=ti_col.get_one(ti)
         t.delete()
     
+    task_collection.get_one(uuid=tuid).delete()
+    pipe_collection.get_one(uuid=pipeline_uid).delete()
+
     
     n.delete()
 
