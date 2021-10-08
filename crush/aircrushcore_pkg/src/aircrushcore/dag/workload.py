@@ -15,7 +15,11 @@ class Workload:
             password=aircrush.config['REST']['password']
             )  
 
-    def get_next_task(self):
+    def get_next_task(self,node_uuid:str):
+        compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
+        compute_node = compute_node_coll.get_one(uuid=node_uuid)
+        self._distribute_sessions_to_node(compute_node)
+       
         filter="filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
         tic = TaskInstanceCollection(cms_host=self.crush_host)
         tic_col = tic.get(filter=filter)
@@ -23,6 +27,32 @@ class Workload:
             t = tic_col[list(tic_col)[0]]
             return t
 
+    def _distribute_sessions_to_node(self,compute_node:ComputeNode):
+        allocated_sessions = compute_node.allocated_sessions()
+        
+        if compute_node.concurrency_limit<=len(allocated_sessions):            
+            print(f"Compute node at capacity ({compute_node.concurrency_limit} sessions). See crush.ini to increase limits.")
+            #return
+        else:
+        
+            ses_col = SessionCollection(cms_host=self.crush_host)
+                #Get sessions that don't have a compute node allocated
+                #outstanding_sessions = ses_col.get(filter="&filter[field_status][value]=notstarted")
+                #outstanding_sessions = ses_col.get(filter="&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]=IS NULL")
+            outstanding_sessions = ses_col.get()
+            for ses_uid in outstanding_sessions:
+                session=ses_col.get_one(ses_uid)
+                if session.field_responsible_compute_node is None:
+                    subject=session.subject()
+                    project=subject.project()
+                    print(f"Allocating {project.title}/{subject.title}/{session.title}")
+                    compute_node.allocate_session(session_uuid=session.uuid)                
+                    allocated_sessions = compute_node.allocated_sessions()
+                    if compute_node.concurrency_limit<=len(allocated_sessions):
+                        break
+
+        compute_node.refresh_task_instances()
+        
 
     def count_of_incomplete_tasks(self):
         tic = TaskInstanceCollection(cms_host=self.crush_host)

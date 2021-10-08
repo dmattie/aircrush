@@ -78,6 +78,7 @@ class TaskInstanceCollection():
             if len(r.json()['data'])!=0:
 
                 for item in r.json()['data']:
+                    print(".",end='')
                     if(item['type']=='node--task_instance'):
                         
                         uuid=item['id']
@@ -106,6 +107,7 @@ class TaskInstanceCollection():
                         except:
                             print("ERROR:Some task instances may be malformed and ignored")
             return taskinstances
-        else:            
+        else:      
+            print(r.status_code)      
             return None
 

@@ -239,4 +239,15 @@ def test_allocate_session_to_compute_node():
     p = proj_collection.get_one(uuid=puid)
     p.delete()
 
-    
+def test_update_compute_node():
+    cn1_uid = create_sample_compute_node()
+    node_collection=ComputeNodeCollection(cms_host=crush_host)
+    node=node_collection.get_one(cn1_uid)
+    old_title=node.title
+    node.title=f"{old_title} revised"
+    cn2_uid = node.upsert()
+    assert(cn1_uid==cn2_uid)
+    node=node_collection.get_one(cn2_uid)
+    assert(node.title==f"{old_title} revised")
+
+    node.delete()

@@ -13,6 +13,9 @@ class BaseOperator():
         self.Container="library://dmattie/default/test-a:sha256.877c6589259369c18c0da0f56f9d344256b1ac6221203854aa2d392cc5835d92"
         self.mode="exec"
         self.command=""
+
+        self.task_instance = TaskInstanceCollection(cms_host=self.cms_host).get_one(id)   
+        
     def __str__(self):
         return f"ID:{self.ID}\nContainer:{self.Container}\nMode:{self.mode}\nCommand:{self.command}"
 

@@ -7,19 +7,20 @@ class Session():
                
         self.title=""                
         self.field_participant=""
-        self.field_status=""
+        self.field_status=None
         self.uuid=None
         self.HOST=None
         self.published=None
         self.sticky=None
+        self.field_responsible_compute_node=None
 
         if 'metadata' in kwargs:
             m=kwargs['metadata']
+        #--------------------------------
         if 'title' in m:
             self.title=m['title']
         if 'field_participant' in m:
             self.field_participant=m['field_participant']
-
         if 'field_status' in m:
             self.field_status=m['field_status']      
         if 'uuid' in m:
@@ -31,6 +32,8 @@ class Session():
             self.published=m['published']   
         if "sticky" in m:
             self.sticky=m['sticky']
+        if "field_responsible_compute_node" in m            :
+            field_responsible_compute_node=m['field_responsible_compute_node']
 
     def upsert(self):
 
@@ -38,8 +41,7 @@ class Session():
                 "data" : {
                     "type":"node--session",                                                        
                     "attributes":{
-                        "title": self.title,                                                    
-                        "field_status": self.field_status,                        
+                        "title": self.title                                                                                                 
                     },
                     "relationships":{}
                     # "relationships":{
@@ -52,7 +54,8 @@ class Session():
                     # }              
                 }
             }   
-
+            if not self.field_status == None:
+                payload['data']['attributes']['field_status']=self.field_status
             if not self.published == None:
                 #status is the published flag
                 payload['data']['attributes']['status']=self.published
@@ -67,8 +70,15 @@ class Session():
                 }
                 payload['data']['relationships']['field_participant']=field_participant
                                 
-           
-             
+            if self.field_responsible_compute_node:
+                field_responsible_compute_node={
+                    "data":{
+                        "id":self.field_responsible_compute_node,
+                        "type":"node--compute_node"
+                    }
+                }
+                payload['data']['relationships']['field_responsible_compute_node']=field_responsible_compute_node
+            
             if self.uuid:   #Update existing                               
                 payload['data']['id']=self.uuid                                                                  
                 r= self.HOST.patch(f"jsonapi/node/session/{self.uuid}",payload)                

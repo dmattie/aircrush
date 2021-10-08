@@ -13,7 +13,7 @@ class TaskInstance():
         self.field_pipeline=""
         self.body=""
         self.field_remaining_retries=""
-        self.field_status=""
+        self.field_status=None
         self.field_task=""
         self.uuid=None
         self.HOST=None
@@ -60,8 +60,7 @@ class TaskInstance():
                         "body":{
                             "value":self.body
                         },
-                        "field_remaining_retries":self.field_remaining_retries,
-                        "field_status":self.field_status
+                        "field_remaining_retries":self.field_remaining_retries                        
                     },
                      "relationships":{}
                              
@@ -87,6 +86,9 @@ class TaskInstance():
                     #         }
                     #     }                                                                   
                     # }  
+            
+            if not self.field_status == None:                
+                payload['data']['attributes']['field_status']=self.field_status
             if not self.field_errorlog ==None:
                 payload['data']['attributes']['field_errorlog']=self.field_errorlog
             if not self.published == None:
@@ -130,12 +132,10 @@ class TaskInstance():
                 
             if self.uuid:   #Update existing  
                 
-                payload['data']['id']=self.uuid   
-                print(f"jsonapi/node/task_instance/{self.uuid}")  
-                print(json.dumps(payload))
-                                                                    
+                payload['data']['id']=self.uuid                                                                     
                 r= self.HOST.patch(f"jsonapi/node/task_instance/{self.uuid}",payload)                
             else:            
+                #print(json.dumps(payload))
                 r= self.HOST.post("jsonapi/node/task_instance",payload)
 
             if(r.status_code!=200 and r.status_code!=201):  

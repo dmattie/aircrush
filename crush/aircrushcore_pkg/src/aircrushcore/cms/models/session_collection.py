@@ -43,13 +43,18 @@ class SessionCollection():
         else:
             filter=""
 
-        url=f"jsonapi/node/session?{filter}{filter_uuid}"        
+        if 'filter' in kwargs:
+            custom_filter=kwargs['filter']
+        else:
+            custom_filter=""
+
+        url=f"jsonapi/node/session?{filter}{filter_uuid}{custom_filter}"           
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
             if len(r.json()['data'])!=0:
             #    print(f"SessionCollection:: No sessions found on CRUSH Host.[{url}]")                
-            #else:       
+            #else:                     
                 for item in r.json()['data']:
                     if(item['type']=='node--session'):
                         
@@ -62,9 +67,8 @@ class SessionCollection():
                             "uuid":uuid,
                             "sticky":item['attributes']['sticky'],
                             "cms_host":self.HOST                                               
-                        }
-
-                        sessions[item['id']]=Session(metadata=metadata)                
+                        }                        
+                        sessions[item['id']]=Session(metadata=metadata)                        
             return sessions
         else:
             return None

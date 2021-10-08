@@ -71,20 +71,19 @@ class Sync():
                     }                
                 
                 #Look for existing subject
-   
+                
                 found_matching_subject_guid_in_cms=None
                 for subject_guid in subjects:
                     subject=subjects[subject_guid]  
                                           
                     if participant==subject.title:  
-                     #   print(f"match found:  update of data commons participant={participant}, CMS subject title={subject.title}.  Subject UUID:{subject.uuid}")                        
+                        print(f"match found:  update of data commons participant={participant}, CMS subject title={subject.title}.  Subject UUID:{subject.uuid}")                        
                         found_matching_subject_guid_in_cms=subject.uuid
                         break   
+                
                 if not found_matching_subject_guid_in_cms is None:                    
                     subject_metadata['uuid']=subject.uuid      
-               # else:
-               #     print(f"no match found:  insert of data commons participant={participant}, CMS subject title={subject.title}.  Subject UUID:{subject.uuid}")                                    
-
+              
                               
                 s = Subject(metadata=subject_metadata)                
                 participant_uuid=s.upsert()                                                                  
@@ -105,7 +104,7 @@ class Sync():
                     for cms_session_guid in sessions:
                         cms_session=sessions[cms_session_guid]                        
                         if data_commons_sessions==cms_session.title: 
-                           # print(f"Matched data_commons_session:{data_commons_sessions}, cms_session.title:{cms_session.title}")                           
+                            print(f"Matched data_commons_session:{data_commons_sessions}, cms_session.title:{cms_session.title}")                           
                             session_metadata['uuid']=cms_session.uuid
                             
                     if not session_metadata['uuid']:
@@ -141,7 +140,8 @@ class Sync():
         for project_uuid in cms_projects:
             project = proj_collection.get_one(project_uuid)            
             cmd=f"python3.8 {project.field_path_to_crush_agent}/ps2.py {project.field_path_to_exam_data}"
-            
+            print(f"Project Sync Initiated:{project.title}")
+            print("-----------------------------------------------------------")
             asyncio.get_event_loop().run_until_complete(
                     self._run_project_status_client(
                         host=project.field_host,
