@@ -45,7 +45,7 @@ class TaskInstance():
                 self.uuid=m['uuid'] 
             if 'published' in m:
                 self.published=m['published'] #Published indicator is actually 'status'
-                print(f"setting published indicator {self.published}")
+                
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -159,6 +159,6 @@ class TaskInstance():
         task = TaskCollection(cms_host=self.HOST).get_one(uuid=self.field_task)
         return task
     def associated_session(self):
-        session = SessionCollection(cms_host=self.HOST).get_one(uuid=self.field_associated_participant_ses)
+        session = SessionCollection(cms_host=self.HOST).get_one(uuid=self.field_associated_participant_ses)            
         return session
         

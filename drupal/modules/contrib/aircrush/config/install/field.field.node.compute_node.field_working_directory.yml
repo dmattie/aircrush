@@ -1,0 +1,22 @@
+# field.field.node.compute_node.field_working_directory.yml
+langcode: en
+status: true
+dependencies:
+    config:
+        - field.storage.node.field_working_directory
+        - node.type.compute_node
+    module:
+        - text
+id: node.compute_node.field_working_directory
+field_name: field_working_directory
+entity_type: node
+bundle: compute_node
+label: Working directory
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+    display_summary: true
+field_type: text

@@ -6,7 +6,7 @@ import asyncio, asyncssh, sys
 class TaskCollection():
 
     def __init__(self,**kwargs):    
-        self.tasks={}    
+         
         self.pipeline=None          
 
         if "cms_host" in kwargs:
@@ -23,12 +23,15 @@ class TaskCollection():
         col=self.get(uuid=uuid)        
         if(len(col)>0):
             x = col[list(col)[0]]
+            print(f"xxxx {len(col)}")
+            print(x.title)
             return x
         else:
             return None
             
     def get(self,**kwargs):
 
+        tasks={}   
 
         if 'uuid' in kwargs:
             uuid=kwargs['uuid']        
@@ -42,7 +45,7 @@ class TaskCollection():
             filter=""
 
         url=f"jsonapi/node/task?{filter}{filter_uuid}"
-        
+                
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
@@ -52,6 +55,7 @@ class TaskCollection():
                   
                 for item in r.json()['data']:
                     if(item['type']=='node--task'):
+                        print("xxxxxxxxxxxxxxxxxxxxxx")
                         
                         uuid=item['id']
 
@@ -66,12 +70,13 @@ class TaskCollection():
                             "field_parameters":item['attributes']['field_parameters'],
                             "field_prerequisite_tasks":prereqs,#item['relationships']['field_prerequisite_tasks']['data']['id'],
                             "field_operator":item['attributes']['field_operator'],
+                            "field_singularity_container":item['attributes']['field_singularity_container'],    
                             "uuid":uuid,
                             "cms_host":self.HOST                                               
-                        }
+                        }                        
 
-                        self.tasks[item['id']]=Task(metadata=metadata)                
-            return self.tasks
+                        tasks[item['id']]=Task(metadata=metadata)                
+            return tasks
         else:
             return None
 

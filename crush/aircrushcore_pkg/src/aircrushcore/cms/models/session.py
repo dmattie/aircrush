@@ -32,8 +32,8 @@ class Session():
             self.published=m['published']   
         if "sticky" in m:
             self.sticky=m['sticky']
-        if "field_responsible_compute_node" in m            :
-            field_responsible_compute_node=m['field_responsible_compute_node']
+        if "field_responsible_compute_node" in m:            
+            self.field_responsible_compute_node=m['field_responsible_compute_node']
 
     def upsert(self):
 

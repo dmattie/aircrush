@@ -9,6 +9,7 @@ class Task():
         self.field_parameters=""
         self.field_prerequisite_tasks=""
         self.field_operator=""
+        self.field_singularity_container=""
         self.uuid=None
         self.HOST=None
     
@@ -26,6 +27,8 @@ class Task():
                 self.field_prerequisite_tasks=m['field_prerequisite_tasks']
             if 'field_operator' in m:
                 self.field_operator=m['field_operator']
+            if 'field_singularity_container' in m:
+                self.field_singularity_container=m['field_singularity_container']
             if "cms_host" in m:
                 self.HOST=m['cms_host']    
             if 'uuid' in m:
@@ -63,10 +66,12 @@ class Task():
                     }
                 payload.data.relationships.field_prerequisite_tasks.append(prereq_obj)
             
-            if self.uuid:   #Update existing  
-                
+            if not self.field_singularity_container == None:
+                payload['data']['attributes']['field_singularity_container']=self.field_singularity_container
+
+            if self.uuid:   #Update existing                  
                 payload.data.id=self.uuid                                                                  
-                r= self.HOST.patch(f"jsonapi/node/task/{self.uuid}",payload)                
+                r= self.HOST.patch(f"jsonapi/node/task/{self.uuid}",payload)                                
             else:            
                 r= self.HOST.post("jsonapi/node/task",payload)
 

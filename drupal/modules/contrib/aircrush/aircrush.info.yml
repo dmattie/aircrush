@@ -1,0 +1,6 @@
+name: Aircrush Module
+description: Content types for aircrush.
+package: Aircrush
+type: module
+core_version_requirement: ^9
+

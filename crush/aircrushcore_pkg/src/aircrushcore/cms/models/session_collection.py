@@ -63,11 +63,12 @@ class SessionCollection():
                         metadata={    
                             "title":item['attributes']['title']  ,                            
                             "field_participant":item['relationships']['field_participant']['data']['id'] ,   
+                            "field_responsible_compute_node": item['relationships']['field_responsible_compute_node']['data']['id'],
                             "field_status":item['attributes']['field_status'],
                             "uuid":uuid,
                             "sticky":item['attributes']['sticky'],
                             "cms_host":self.HOST                                               
-                        }                        
+                        }                                               
                         sessions[item['id']]=Session(metadata=metadata)                        
             return sessions
         else:

@@ -1,0 +1,14 @@
+# node.type.car_brand.yml
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - aircrush # This is the name of the module we're using for this example
+name: 'Compute Node'
+type: compute_node
+description: 'An HCP cluster name or on premise host running that can perform computation steps within a pipeline'
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: true

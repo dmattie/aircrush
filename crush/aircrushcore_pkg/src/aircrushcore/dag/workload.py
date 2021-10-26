@@ -16,22 +16,66 @@ class Workload:
             )  
 
     def get_next_task(self,node_uuid:str):
+        ###################################################################
+        # Big fancy optimization AI brain goes here #######################
+        ###################################################################
+        #... but for now...
+        #What node am I on?
         compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
         compute_node = compute_node_coll.get_one(uuid=node_uuid)
+        
+        #Ensure sessions are allocated and task instances reflect the current pipeline
         self._distribute_sessions_to_node(compute_node)
        
-        filter="filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
-        tic = TaskInstanceCollection(cms_host=self.crush_host)
+        #Get task instances ready to run
+        filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
+        tic = TaskInstanceCollection(cms_host=self.crush_host)        
         tic_col = tic.get(filter=filter)
+        print("SIFT THROUGH THE PILE")
         if(len(tic_col)>0):
-            t = tic_col[list(tic_col)[0]]
-            return t
+            #Iterate the tasks, looking for one we can do
+            for ti_idx in tic_col:
+                
+                ti = tic_col[ti_idx]                
+                session = ti.associated_session()    
+                
+                if session.field_responsible_compute_node == node_uuid: # This session has been allocated to the node asking for work
+                    print(f"Candidate task instance {ti.title}")
+                    task = ti.task_definition()
+                    if not self.unmet_dependencies(task,ti):
+                        #Ignore any with unmet dependencies
+                       # t = tic_col[list(tic_col)[0]]                       
+                       return ti
+                    else:
+                        print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
+
+    def unmet_dependencies(self,task:task,candidate_ti:task_instance):
+        session_uuid=candidate_ti.associated_session()
+        for prereq_task in task.field_prerequisite_tasks:
+            #for the given task, find dependent tasks with incomplete task instances 
+
+            
+            #Look for any uncomplete task_instances matching this task_uuid for this session
+            filter="filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
+            tic = TaskInstanceCollection(cms_host=self.crush_host,task=prereq_task['id'])        
+            tic_col = tic.get(filter=filter,session=session_uuid)
+            #print(f"\t{len(tic_col)} task instances instantiated for the same session that have failed or not started (including the candidate)")
+            if not tic_col == None:
+                for ti_uuid in tic_col:
+                               
+                    if ti_uuid != candidate_ti.uuid:
+                        print(f"\t{tic_col[ti_uuid].title} is a parent of the candidate and is incomplete || compare: found ti {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}") 
+                        #print(f"compare: ti_uuid {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}")
+                        return True
+        print("\tno unmet dependencies for the task definition associated with this task instance")
+        return False
+
 
     def _distribute_sessions_to_node(self,compute_node:ComputeNode):
         allocated_sessions = compute_node.allocated_sessions()
         
         if compute_node.concurrency_limit<=len(allocated_sessions):            
-            print(f"Compute node at capacity ({compute_node.concurrency_limit} sessions). See crush.ini to increase limits.")
+            print(f"\tCompute node at capacity ({compute_node.concurrency_limit} sessions). See crush.ini to increase limits.")
             #return
         else:
         

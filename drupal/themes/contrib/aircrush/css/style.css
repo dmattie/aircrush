@@ -29,3 +29,9 @@ pre {
     font-size:0.8rem;
     line-height:1.25rem;
 }
+.node--type-task-instance .field--name-body {
+    font-size:0.8rem;
+    line-height:1.25rem;
+    font-family:'Courier New', Courier, monospace;
+    
+}

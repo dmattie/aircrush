@@ -113,10 +113,11 @@ class ComputeNode():
         sess.sticky=False
         sess.upsert()
     def refresh_task_instances(self):
+        print("\tRefreshing task instances")
         sess_col = SessionCollection(cms_host=self.HOST)            
         sessions = sess_col.get(filter=f"&filter[field_responsible_compute_node.id][value]={self.uuid}")
         for ses in sessions:
-            print(sessions[ses].title)
+            print(f"\t{sessions[ses].title}")
             self._establish_task_instances(sessions[ses])
 
     def _attach_to_session(self,session:session):
@@ -137,6 +138,7 @@ class ComputeNode():
 
         #Look at existing task instances
         ti_col = TaskInstanceCollection(cms_host=self.HOST,session=session.uuid)
+        pipe_col = PipelineCollection(cms_host=self.HOST)
         tis = ti_col.get()
 
         ses_assigned_to_ti=None
@@ -148,19 +150,21 @@ class ComputeNode():
             break                 
 
         #If there are task instances assigned to this session or there are no task instances...
-        print(f"session_assigned_to_ti:{ses_assigned_to_ti}, session:{session.uuid}")
+        print(f"\tsession_assigned_to_ti:{ses_assigned_to_ti}, session:{session.uuid}")
         if ses_assigned_to_ti is None or ses_assigned_to_ti==session.uuid:
            
             activated_pipelines = session.project().field_activated_pipelines
             
-            print(f"Activated pipelines for this session: {activated_pipelines}")
+            print(f"\t\tActivated pipelines for this session: {activated_pipelines}")
             
 
             for pipeline_uuid in activated_pipelines:
-                print(f"Pipeline:{pipeline_uuid}")
+                
+                pipe = pipe_col.get_one(uuid=pipeline_uuid)
+                print(f"\t\tPipeline: {pipe.title} ({pipeline_uuid})")
                 task_col = TaskCollection(cms_host=self.HOST,pipeline=pipeline_uuid)
                 for task_uuid in task_col.get():
-                    print(f"task uuid:{task_uuid}")
+                    print(f"\t\t\ttask uuid:{task_uuid}")
                                       
                     #Look for a task instance for this pipeline.task associated with this session
                     ti_col = TaskInstanceCollection(cms_host=self.HOST,pipeline=pipeline_uuid,task=task_uuid,session=session.uuid)
@@ -168,7 +172,7 @@ class ComputeNode():
                     matching_tis = ti_col.get()
                     
                     if len(matching_tis)==0:
-                        print("Create TI")
+                        print("\t\t\tCreate TI")
                         #Create this task instance
                         task = task_col.get_one(task_uuid)
                         pipeline = task.pipeline()#pipe_col.get_one(uuid=pipeline_uuid)
@@ -180,7 +184,7 @@ class ComputeNode():
                             "field_task":task_uuid,
                             "cms_host":self.HOST  
                         }
-                        print("d")
+                        print(metadata)
                         ti = TaskInstance(metadata=metadata)
                         ti_uid=ti.upsert()
                         print("TI upserted")
