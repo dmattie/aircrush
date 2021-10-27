@@ -3,14 +3,13 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_author
-field_name: field_author
+id: node.field_remaining_retries
+field_name: field_remaining_retries
 entity_type: node
-type: string
+type: integer
 settings:
-  max_length: 255
-  is_ascii: false
-  case_sensitive: false
+  unsigned: false
+  size: normal
 module: core
 locked: false
 cardinality: 1

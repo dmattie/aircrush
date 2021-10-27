@@ -3,12 +3,12 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_author
-field_name: field_author
+id: node.field_parameters
+field_name: field_parameters
 entity_type: node
 type: string
 settings:
-  max_length: 255
+  max_length: 1024
   is_ascii: false
   case_sensitive: false
 module: core

@@ -3,8 +3,8 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_author
-field_name: field_author
+id: node.field_path_to_crush_agent
+field_name: field_path_to_crush_agent
 entity_type: node
 type: string
 settings:

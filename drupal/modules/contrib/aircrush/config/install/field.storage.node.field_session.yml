@@ -3,8 +3,8 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_author
-field_name: field_author
+id: node.field_session
+field_name: field_session
 entity_type: node
 type: string
 settings:

@@ -3,14 +3,11 @@ status: true
 dependencies:
   module:
     - node
-id: node.field_author
-field_name: field_author
+id: node.field_queue_for_retry
+field_name: field_queue_for_retry
 entity_type: node
-type: string
-settings:
-  max_length: 255
-  is_ascii: false
-  case_sensitive: false
+type: boolean
+settings: {  }
 module: core
 locked: false
 cardinality: 1
