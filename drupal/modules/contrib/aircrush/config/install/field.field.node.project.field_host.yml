@@ -3,15 +3,15 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_host
-    - node.type.compute_node
-id: node.compute_node.field_host
+    - node.type.project
+id: node.project.field_host
 field_name: field_host
 entity_type: node
-bundle: compute_node
-label: host/cluster
+bundle: project
+label: host
 description: ''
 required: true
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings: {  }

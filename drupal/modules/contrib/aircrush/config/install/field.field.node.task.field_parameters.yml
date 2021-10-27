@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_parameters
+    - node.type.task
+id: node.task.field_parameters
+field_name: field_parameters
+entity_type: node
+bundle: task
+label: Parameters
+description: 'A JSON formatted key-value parameter list'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

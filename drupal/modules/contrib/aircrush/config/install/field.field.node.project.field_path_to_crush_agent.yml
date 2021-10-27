@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_path_to_crush_agent
+    - node.type.project
+id: node.project.field_path_to_crush_agent
+field_name: field_path_to_crush_agent
+entity_type: node
+bundle: project
+label: 'Path to CRUSH Agent'
+description: "On the server hosting the Project files, the CRUSH agent must be deployed (git clone https://github.com/dmattie/crushagents).\r\nEnter the path to the location of this agent. "
+required: false
+translatable: false
+default_value:
+  -
+    value: ~/crush_agent/
+default_value_callback: ''
+settings: {  }
+field_type: string

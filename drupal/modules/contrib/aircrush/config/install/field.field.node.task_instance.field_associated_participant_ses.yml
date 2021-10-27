@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_associated_participant_ses
+    - node.type.session
+    - node.type.task_instance
+id: node.task_instance.field_associated_participant_ses
+field_name: field_associated_participant_ses
+entity_type: node
+bundle: task_instance
+label: 'Associated Participant Session'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      session: session
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

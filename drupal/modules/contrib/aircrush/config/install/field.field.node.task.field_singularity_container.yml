@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_singularity_container
+    - node.type.task
+id: node.task.field_singularity_container
+field_name: field_singularity_container
+entity_type: node
+bundle: task
+label: 'Singularity Container'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

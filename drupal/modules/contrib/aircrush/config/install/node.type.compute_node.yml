@@ -1,14 +1,20 @@
-# node.type.car_brand.yml
 langcode: en
 status: true
 dependencies:
-  enforced:
-    module:
-      - aircrush # This is the name of the module we're using for this example
+  module:
+    - menu_ui
+    - unique_entity_title
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+  unique_entity_title:
+    enabled: false
 name: 'Compute Node'
 type: compute_node
 description: 'An HCP cluster name or on premise host running that can perform computation steps within a pipeline'
-help: ''
-new_revision: false
+help: 'The title can be anything, but please know the same host can have multiple logins. Best advice is to use myusername@cedar.computecanada.ca or myusername@localserver'
+new_revision: true
 preview_mode: 1
 display_submitted: true

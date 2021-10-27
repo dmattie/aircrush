@@ -2,13 +2,13 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_password
-    - node.type.compute_node
-id: node.compute_node.field_password
-field_name: field_password
+    - field.storage.node.field_id
+    - node.type.task
+id: node.task.field_id
+field_name: field_id
 entity_type: node
-bundle: compute_node
-label: password
+bundle: task
+label: ID
 description: ''
 required: false
 translatable: true

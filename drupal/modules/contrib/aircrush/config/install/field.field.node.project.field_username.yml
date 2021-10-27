@@ -3,15 +3,15 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_username
-    - node.type.compute_node
-id: node.compute_node.field_username
+    - node.type.project
+id: node.project.field_username
 field_name: field_username
 entity_type: node
-bundle: compute_node
+bundle: project
 label: username
 description: ''
 required: true
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
 settings: {  }

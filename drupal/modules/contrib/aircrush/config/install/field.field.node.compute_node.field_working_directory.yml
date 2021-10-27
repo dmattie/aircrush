@@ -2,21 +2,18 @@
 langcode: en
 status: true
 dependencies:
-    config:
-        - field.storage.node.field_working_directory
-        - node.type.compute_node
-    module:
-        - text
+  config:
+    - field.storage.node.field_working_directory
+    - node.type.compute_node
 id: node.compute_node.field_working_directory
 field_name: field_working_directory
 entity_type: node
 bundle: compute_node
-label: Working directory
+label: 'Working Directory'
 description: ''
 required: false
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
-settings:
-    display_summary: true
-field_type: text
+settings: {  }
+field_type: string

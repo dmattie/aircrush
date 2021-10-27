@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - unique_entity_title
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+  unique_entity_title:
+    enabled: false
+name: Task
+type: task
+description: 'The defintion of an operation to perform some work.  This will be the model for a task instance.'
+help: ''
+new_revision: false
+preview_mode: 0
+display_submitted: true
