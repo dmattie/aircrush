@@ -253,7 +253,9 @@ $databases = [];
  * directory in the public files path. The setting below allows you to set
  * its location.
  */
-# $settings['config_sync_directory'] = '/directory/outside/webroot';
+#$settings['config_sync_directory'] = '/var/www/drupal_sync';
+
+
 
 /**
  * Settings:
@@ -790,3 +792,4 @@ $databases['default']['default'] = array (
   'driver' => 'mysql',
 );
 $settings['config_sync_directory'] = 'sites/default/files/config_Z4M5xDXtp7oR0EqUCjwQMhk81aieDILyI6O2SeKlRy4JxfhMJGx1-jnLEjss2cxmEN_MzkbxaQ/sync';
+#$settings['config_sync_directory'] = '/usr/local/drupal_sync/sync';

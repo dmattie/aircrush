@@ -8,4 +8,9 @@ RUN apk update; \
 COPY local.apache.conf /usr/local/apache2/conf/local.apache.conf
 RUN echo "Include /usr/local/apache2/conf/local.apache.conf" \
     >> /usr/local/apache2/conf/httpd.conf
+RUN ls /usr/local
+RUN mkdir /usr/local/drupal_sync
+RUN chmod a+w /usr/local/drupal_sync
+
+
     
