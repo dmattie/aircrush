@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_remaining_retries
     - node.type.task_instance
+  enforced:
+    module:
+      - aircrush    
 id: node.task_instance.field_remaining_retries
 field_name: field_remaining_retries
 entity_type: node

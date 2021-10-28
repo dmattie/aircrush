@@ -5,6 +5,9 @@ dependencies:
     - field.storage.node.field_task
     - node.type.task
     - node.type.task_instance
+  enforced:
+    module:
+      - aircrush    
 id: node.task_instance.field_task
 field_name: field_task
 entity_type: node

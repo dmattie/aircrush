@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_author
 field_name: field_author
 entity_type: node

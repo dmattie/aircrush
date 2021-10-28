@@ -5,6 +5,9 @@ dependencies:
     - field.storage.node.field_activated_pipelines
     - node.type.pipeline
     - node.type.project
+  enforced:
+    module:
+      - aircrush    
 id: node.project.field_activated_pipelines
 field_name: field_activated_pipelines
 entity_type: node

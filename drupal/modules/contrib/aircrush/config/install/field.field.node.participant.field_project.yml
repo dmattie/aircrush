@@ -5,6 +5,9 @@ dependencies:
     - field.storage.node.field_project
     - node.type.participant
     - node.type.project
+  enforced:
+    module:
+      - aircrush    
 id: node.participant.field_project
 field_name: field_project
 entity_type: node

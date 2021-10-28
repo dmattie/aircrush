@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_singularity_container
 field_name: field_singularity_container
 entity_type: node

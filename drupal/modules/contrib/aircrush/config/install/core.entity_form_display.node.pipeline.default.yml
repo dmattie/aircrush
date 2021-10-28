@@ -11,6 +11,9 @@ dependencies:
   module:
     - path
     - text
+  enforced:
+    module:
+      - aircrush    
 id: node.pipeline.default
 targetEntityType: node
 bundle: pipeline

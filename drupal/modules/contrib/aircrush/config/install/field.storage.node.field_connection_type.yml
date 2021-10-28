@@ -4,6 +4,9 @@ dependencies:
   module:
     - node
     - options
+  enforced:
+    module:
+      - aircrush    
 id: node.field_connection_type
 field_name: field_connection_type
 entity_type: node

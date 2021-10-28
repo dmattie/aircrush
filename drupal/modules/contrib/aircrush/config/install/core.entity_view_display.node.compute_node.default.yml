@@ -12,6 +12,9 @@ dependencies:
   module:
     - text
     - user
+  enforced:
+    module:
+      - aircrush    
 id: node.compute_node.default
 targetEntityType: node
 bundle: compute_node

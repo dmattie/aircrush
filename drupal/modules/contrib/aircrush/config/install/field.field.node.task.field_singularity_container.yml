@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_singularity_container
     - node.type.task
+  enforced:
+    module:
+      - aircrush    
 id: node.task.field_singularity_container
 field_name: field_singularity_container
 entity_type: node

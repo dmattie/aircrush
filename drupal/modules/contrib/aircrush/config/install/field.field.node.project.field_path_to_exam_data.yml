@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_path_to_exam_data
     - node.type.project
+  enforced:
+    module:
+      - aircrush    
 id: node.project.field_path_to_exam_data
 field_name: field_path_to_exam_data
 entity_type: node

@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_project
 field_name: field_project
 entity_type: node

@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_host
 field_name: field_host
 entity_type: node

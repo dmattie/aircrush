@@ -6,6 +6,9 @@ dependencies:
     - node.type.project
   module:
     - text
+  enforced:
+    module:
+      - aircrush    
 id: node.project.body
 field_name: body
 entity_type: node

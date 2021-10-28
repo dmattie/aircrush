@@ -6,6 +6,9 @@ dependencies:
     - node.type.task_instance
   module:
     - options
+  enforced:
+    module:
+      - aircrush    
 id: node.task_instance.field_status
 field_name: field_status
 entity_type: node

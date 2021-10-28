@@ -6,6 +6,9 @@ dependencies:
     - node.type.pipeline
   module:
     - text
+  enforced:
+    module:
+      - aircrush    
 id: node.pipeline.body
 field_name: body
 entity_type: node

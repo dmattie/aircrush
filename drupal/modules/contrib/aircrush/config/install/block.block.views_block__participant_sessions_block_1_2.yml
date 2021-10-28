@@ -8,6 +8,9 @@ dependencies:
     - views
   theme:
     - olivero
+  enforced:
+    module:
+      - aircrush    
 id: views_block__participant_sessions_block_1_2
 theme: olivero
 region: content

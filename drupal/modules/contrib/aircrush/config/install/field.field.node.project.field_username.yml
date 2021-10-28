@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_username
     - node.type.project
+  enforced:
+    module:
+      - aircrush    
 id: node.project.field_username
 field_name: field_username
 entity_type: node

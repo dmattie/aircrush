@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_remaining_retries
 field_name: field_remaining_retries
 entity_type: node

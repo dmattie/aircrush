@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_path_to_crush_agent
     - node.type.project
+  enforced:
+    module:
+      - aircrush    
 id: node.project.field_path_to_crush_agent
 field_name: field_path_to_crush_agent
 entity_type: node

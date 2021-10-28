@@ -5,6 +5,9 @@ dependencies:
     - field.storage.node.field_responsible_compute_node
     - node.type.compute_node
     - node.type.session
+  enforced:
+    module:
+      - aircrush    
 id: node.session.field_responsible_compute_node
 field_name: field_responsible_compute_node
 entity_type: node

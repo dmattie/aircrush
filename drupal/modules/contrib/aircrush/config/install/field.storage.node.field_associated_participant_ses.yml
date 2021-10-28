@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_associated_participant_ses
 field_name: field_associated_participant_ses
 entity_type: node

@@ -10,6 +10,9 @@ dependencies:
   module:
     - options
     - user
+  enforced:
+    module:
+      - aircrush    
 id: node.session.default
 targetEntityType: node
 bundle: session

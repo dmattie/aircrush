@@ -9,6 +9,9 @@ dependencies:
     - node.type.session
   module:
     - path
+  enforced:
+    module:
+      - aircrush    
 id: node.session.default
 targetEntityType: node
 bundle: session

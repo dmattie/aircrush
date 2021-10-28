@@ -14,6 +14,9 @@ dependencies:
   module:
     - path
     - text
+  enforced:
+    module:
+      - aircrush    
 id: node.project.default
 targetEntityType: node
 bundle: project

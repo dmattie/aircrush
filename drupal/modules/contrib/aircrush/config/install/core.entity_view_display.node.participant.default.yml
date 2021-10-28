@@ -9,6 +9,9 @@ dependencies:
   module:
     - options
     - user
+  enforced:
+    module:
+      - aircrush    
 id: node.participant.default
 targetEntityType: node
 bundle: participant

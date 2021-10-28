@@ -14,6 +14,9 @@ dependencies:
     - options
     - text
     - user
+  enforced:
+    module:
+      - aircrush    
 id: node.task_instance.default
 targetEntityType: node
 bundle: task_instance

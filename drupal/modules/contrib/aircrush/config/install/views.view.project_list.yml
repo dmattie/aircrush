@@ -9,6 +9,9 @@ dependencies:
     - node
     - text
     - user
+  enforced:
+    module:
+      - aircrush    
 id: project_list
 label: 'Project List'
 module: views

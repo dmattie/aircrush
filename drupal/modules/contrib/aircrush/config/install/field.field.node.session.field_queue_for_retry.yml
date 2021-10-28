@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_queue_for_retry
     - node.type.session
+  enforced:
+    module:
+      - aircrush    
 id: node.session.field_queue_for_retry
 field_name: field_queue_for_retry
 entity_type: node

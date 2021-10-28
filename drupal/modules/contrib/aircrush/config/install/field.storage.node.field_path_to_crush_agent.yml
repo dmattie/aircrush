@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_path_to_crush_agent
 field_name: field_path_to_crush_agent
 entity_type: node

@@ -88,3 +88,5 @@ RUN apk add --update \
 
 # Copy php.ini memory limit increase    
 COPY php.ini /usr/local/etc/php/
+
+#RUN composer require drupal/migrate_tools

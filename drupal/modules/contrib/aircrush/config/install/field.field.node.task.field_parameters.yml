@@ -4,6 +4,9 @@ dependencies:
   config:
     - field.storage.node.field_parameters
     - node.type.task
+  enforced:
+    module:
+      - aircrush    
 id: node.task.field_parameters
 field_name: field_parameters
 entity_type: node

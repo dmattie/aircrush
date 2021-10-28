@@ -7,6 +7,9 @@ dependencies:
         - node.type.compute_node
     module:
         - text
+    enforced:
+      module:
+        - aircrush        
 id: node.compte_node.body
 field_name: body
 entity_type: node

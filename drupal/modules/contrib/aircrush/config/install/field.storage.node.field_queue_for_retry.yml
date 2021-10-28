@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - node
+  enforced:
+    module:
+      - aircrush    
 id: node.field_queue_for_retry
 field_name: field_queue_for_retry
 entity_type: node

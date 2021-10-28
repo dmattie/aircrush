@@ -6,6 +6,9 @@ dependencies:
     - node.type.participant
   module:
     - options
+  enforced:
+    module:
+      - aircrush    
 id: node.participant.field_status
 field_name: field_status
 entity_type: node
