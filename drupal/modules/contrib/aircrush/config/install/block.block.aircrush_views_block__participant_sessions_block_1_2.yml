@@ -1,0 +1,32 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - views.view.participant_sessions
+  module:
+    - node
+    - views
+  theme:
+    - aircrush
+id: aircrush_views_block__participant_sessions_block_1_2
+theme: aircrush
+region: content
+weight: -8
+provider: null
+plugin: 'views_block:participant_sessions-block_1'
+settings:
+  id: 'views_block:participant_sessions-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+  context_mapping: {  }
+visibility:
+  node_type:
+    id: node_type
+    bundles:
+      participant: participant
+    negate: false
+    context_mapping:
+      node: '@node.node_route_context:node'

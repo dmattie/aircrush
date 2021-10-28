@@ -1,0 +1,47 @@
+langcode: en
+status: true
+dependencies: {  }
+id: apiuser
+label: apiuser
+weight: 3
+is_admin: null
+permissions:
+  - 'administer nodes'
+  - 'create compute_node content'
+  - 'create exam content'
+  - 'create participant content'
+  - 'create pipeline content'
+  - 'create project content'
+  - 'create session content'
+  - 'create task content'
+  - 'create task_instance content'
+  - 'delete any compute_node content'
+  - 'delete any exam content'
+  - 'delete any participant content'
+  - 'delete any session content'
+  - 'delete any task content'
+  - 'delete any task_instance content'
+  - 'delete own exam content'
+  - 'delete own participant content'
+  - 'delete own pipeline content'
+  - 'delete own project content'
+  - 'delete own session content'
+  - 'delete own task content'
+  - 'delete own task_instance content'
+  - 'delete task revisions'
+  - 'edit any compute_node content'
+  - 'edit any exam content'
+  - 'edit any participant content'
+  - 'edit any pipeline content'
+  - 'edit any project content'
+  - 'edit any session content'
+  - 'edit any task content'
+  - 'edit any task_instance content'
+  - 'edit own compute_node content'
+  - 'edit own exam content'
+  - 'edit own participant content'
+  - 'edit own pipeline content'
+  - 'edit own project content'
+  - 'edit own session content'
+  - 'edit own task content'
+  - 'edit own task_instance content'
