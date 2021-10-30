@@ -14,4 +14,6 @@ from .task_instance import TaskInstance
 from .compute_node import ComputeNode
 from .compute_node_collection import ComputeNodeCollection
 
+__all__ = ("Session")
+
 

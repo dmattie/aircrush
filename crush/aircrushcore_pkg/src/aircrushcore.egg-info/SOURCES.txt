@@ -7,6 +7,8 @@ src/aircrushcore.egg-info/PKG-INFO
 src/aircrushcore.egg-info/SOURCES.txt
 src/aircrushcore.egg-info/dependency_links.txt
 src/aircrushcore.egg-info/top_level.txt
+src/aircrushcore/cms/models/__init.py
+src/aircrushcore/cms/models/subject.py
 src/aircrushcore/crushhost/__init__.py
 src/aircrushcore/crushhost/authentication.py
 src/aircrushcore/crushhost/patch.py

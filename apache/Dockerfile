@@ -15,6 +15,9 @@ RUN mkdir -p /var/www/html/sites/default/files/config_Z4M5xDXtp7oR0EqUCjwQMhk81a
 RUN chmod a+w -R /var/www/html/sites/default/files
 RUN drush en migrate
 RUN drush en unique_entity_title
+RUN drush en basic_auth
+#http://aircrush/admin/config/services/jsonapi
+
 # RUN drush config:set system.site page.front node
 #https://drushcommands.com/drush-9x/config/config:set/
 #Email, homepage
