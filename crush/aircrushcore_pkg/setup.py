@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="aircrushcore",
-    version="0.0.1",
+    version="0.0.8",
     author="Dave Mattie",
     author_email="dmattie@stfx.ca",
     description="Core pipelines and operators for airCRUSH",
@@ -21,6 +21,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
+    #packages=setuptools.find_packages(where="src"),
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
 )

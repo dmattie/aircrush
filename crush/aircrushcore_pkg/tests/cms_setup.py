@@ -1,4 +1,4 @@
-from aircrushcore.cms.models import *
+from aircrushcore.cms import *
 import configparser
 import uuid
 

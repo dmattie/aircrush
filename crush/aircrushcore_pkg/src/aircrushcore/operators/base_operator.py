@@ -1,5 +1,5 @@
 import ast
-from aircrushcore.cms.models import *
+from aircrushcore.cms import *
 
 
 class BaseOperator():

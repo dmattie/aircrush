@@ -3,10 +3,10 @@ import pytest
 from aircrushcore.controller.configuration import AircrushConfig
 from aircrushcore.controller.sync import Sync
 from aircrushcore.datacommons.models.data_commons import DataCommons
-from aircrushcore.cms.models.project_collection import ProjectCollection
-from aircrushcore.cms.models.subject_collection import SubjectCollection
-from aircrushcore.cms.models.project import Project
-from aircrushcore.cms.models.host import Host
+from aircrushcore.cms.project_collection import ProjectCollection
+from aircrushcore.cms.subject_collection import SubjectCollection
+from aircrushcore.cms.project import Project
+from aircrushcore.cms.host import Host
 
 
 

@@ -1,5 +1,5 @@
 
-from aircrushcore.cms.models import *
+from aircrushcore.cms import *
 import configparser
 from aircrushcore.controller.configuration import AircrushConfig
 import json

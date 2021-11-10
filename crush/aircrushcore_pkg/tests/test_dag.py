@@ -3,7 +3,7 @@ from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
 from aircrushcore.controller.configuration import AircrushConfig
 from aircrushcore.dag import Workload
-from aircrushcore.cms.models.task_instance import TaskInstance
+from aircrushcore.cms.task_instance import TaskInstance
 from .cms_setup import *
 #from aircrushcore.compute import ComputeNodeConnection
 import aircrushcore.compute

@@ -1,8 +1,8 @@
-from aircrushcore.cms.models.task_instance_collection import TaskInstanceCollection
-from aircrushcore.cms.models.task_instance import TaskInstance
+from aircrushcore.cms.task_instance_collection import TaskInstanceCollection
+from aircrushcore.cms.task_instance import TaskInstance
 from aircrushcore.controller.configuration import AircrushConfig
-#from aircrushcore.cms.models.host import Host
-from aircrushcore.cms.models import *
+#from aircrushcore.cms.host import Host
+from aircrushcore.cms import Host,Task,TaskCollection,ComputeNodeCollection,ComputeNode,SessionCollection
 from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
 
@@ -31,7 +31,7 @@ class Workload:
         filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
         tic = TaskInstanceCollection(cms_host=self.crush_host)        
         tic_col = tic.get(filter=filter)
-        print("SIFT THROUGH THE PILE")
+        #print("SIFT THROUGH THE PILE")
         if(len(tic_col)>0):
             #Iterate the tasks, looking for one we can do
             for ti_idx in tic_col:
@@ -40,23 +40,23 @@ class Workload:
                 session = ti.associated_session()    
                 
                 if session.field_responsible_compute_node == node_uuid: # This session has been allocated to the node asking for work
-                    print(f"Candidate task instance {ti.title}")
+                    #print(f"Candidate task instance {ti.title}")
                     task = ti.task_definition()
                     if not self.unmet_dependencies(task,ti):
                         #Ignore any with unmet dependencies
                        # t = tic_col[list(tic_col)[0]]                       
                        return ti
-                    else:
-                        print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
+                    #else:
+                    #    print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
 
-    def unmet_dependencies(self,task:task,candidate_ti:task_instance):
+    def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
         session_uuid=candidate_ti.associated_session()
         for prereq_task in task.field_prerequisite_tasks:
             #for the given task, find dependent tasks with incomplete task instances 
 
             
             #Look for any uncomplete task_instances matching this task_uuid for this session
-            filter="filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
+            filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed"
             tic = TaskInstanceCollection(cms_host=self.crush_host,task=prereq_task['id'])        
             tic_col = tic.get(filter=filter,session=session_uuid)
             #print(f"\t{len(tic_col)} task instances instantiated for the same session that have failed or not started (including the candidate)")
@@ -64,10 +64,10 @@ class Workload:
                 for ti_uuid in tic_col:
                                
                     if ti_uuid != candidate_ti.uuid:
-                        print(f"\t{tic_col[ti_uuid].title} is a parent of the candidate and is incomplete || compare: found ti {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}") 
+                        #print(f"\t{tic_col[ti_uuid].title} is a parent of the candidate and is incomplete || compare: found ti {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}") 
                         #print(f"compare: ti_uuid {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}")
                         return True
-        print("\tno unmet dependencies for the task definition associated with this task instance")
+        #print("\tno unmet dependencies for the task definition associated with this task instance")
         return False
 
 
@@ -124,5 +124,5 @@ class Workload:
 
                 
 
-                return response
+                #return response
         print("No worker nodes ready to perform this task instance")
