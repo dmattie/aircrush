@@ -244,6 +244,15 @@
                 0 => '9.1.7',
             ),
         ),
+        'drupal/charts' => array(
+            'pretty_version' => '3.3.0',
+            'version' => '3.3.0.0',
+            'type' => 'drupal-module',
+            'install_path' => __DIR__ . '/../../modules/contrib/charts',
+            'aliases' => array(),
+            'reference' => '8.x-3.3',
+            'dev_requirement' => false,
+        ),
         'drupal/ckeditor' => array(
             'dev_requirement' => false,
             'replaced' => array(
@@ -714,26 +723,6 @@
             'replaced' => array(
                 0 => '9.1.7',
             ),
-        ),
-        'drupal/migrate_plus' => array(
-            'pretty_version' => '5.1.0',
-            'version' => '5.1.0.0',
-            'type' => 'drupal-module',
-            'install_path' => __DIR__ . '/../../modules/contrib/migrate_plus',
-            'aliases' => array(),
-            'reference' => '8.x-5.1',
-            'dev_requirement' => false,
-        ),
-        'drupal/migrate_tools' => array(
-            'pretty_version' => 'dev-5.x',
-            'version' => 'dev-5.x',
-            'type' => 'drupal-module',
-            'install_path' => __DIR__ . '/../../modules/contrib/migrate_tools',
-            'aliases' => array(
-                0 => '5.x-dev',
-            ),
-            'reference' => '56d82b4fc111dd26f2c3a1e53c06015eb854df20',
-            'dev_requirement' => false,
         ),
         'drupal/minimal' => array(
             'dev_requirement' => false,

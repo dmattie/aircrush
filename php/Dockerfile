@@ -90,3 +90,4 @@ RUN apk add --update \
 COPY php.ini /usr/local/etc/php/
 
 #RUN composer require drupal/migrate_tools
+RUN composer require drupal/charts
