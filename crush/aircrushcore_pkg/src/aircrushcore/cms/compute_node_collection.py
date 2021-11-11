@@ -42,28 +42,42 @@ class ComputeNodeCollection():
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
-            if len(r.json()['data'])==0:
-                print("ComputeNodeCollection:: No ComputeNodes found on CRUSH Host.")                
-            else:       
-                for item in r.json()['data']:
-                    if(item['type']=='node--compute_node'):
+            if len(r.json()['data'])!=0:
+                not_done=True
+                while not_done:
 
-                        uuid=item['id']
+                    page_of_nodes = self._json2computenode(r.json()['data'])
+                    for node in page_of_nodes:
+                        Nodes[node]=page_of_nodes[node]                    
 
-                        metadata={    
-                            "title":item['attributes']['title']  ,                            
-                            "field_host":item['attributes']['field_host'] ,   
-                            "field_username":item['attributes']['field_username'],
-                            "field_password":item['attributes']['field_password'],
-                            "field_working_directory":item['attributes']['field_working_directory'],                            
-                            "body":item['attributes']['body'],
-                            "uuid":uuid,
-                            "cms_host":self.HOST                                             
-                        }                       
+                    if 'next' in r.json()['links']:
+                        r = self.HOST.get(r.json()['links']['next']['href'])
+                    else:
+                        not_done=False
+                
+            return Nodes     
 
-                        Nodes[item['id']]=ComputeNode(metadata=metadata)   
+    def _json2computenode(self,json):
+        #for item in r.json()['data']:
+        Nodes={}
+        for item in json:
+            if(item['type']=='node--compute_node'):
 
-            
-            return Nodes                     
+                uuid=item['id']
+
+                metadata={    
+                    "title":item['attributes']['title']  ,                            
+                    "field_host":item['attributes']['field_host'] ,   
+                    "field_username":item['attributes']['field_username'],
+                    "field_password":item['attributes']['field_password'],
+                    "field_working_directory":item['attributes']['field_working_directory'],                            
+                    "body":item['attributes']['body'],
+                    "uuid":uuid,
+                    "cms_host":self.HOST                                             
+                }                       
+
+                Nodes[item['id']]=ComputeNode(metadata=metadata)   
+
+        return Nodes                
 
 

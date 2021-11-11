@@ -216,6 +216,10 @@ class DataCommons():
                 for cms_subject in cms_subjects:
                     if cms_subjects[cms_subject].title==dc_subject:
                         cms_has_subject=True
+                        if cms_subjects[cms_subject].published==False:
+                            #cms_subjects[cms_subject].published=True                            
+                            #cms_subjects[cms_subject].upsert()
+                            print(f"[INFO] {cms_subjects[cms_subject].title} is unpublished but exists on data commons.  Consider re-publishing.")
                         break
                 if not cms_has_subject:
                     #Upsert it
@@ -235,8 +239,9 @@ class DataCommons():
                         dc_has_subject=True
                         break
                 if not dc_has_subject:
-                    cms_subjects[cms_subject].published=False
+                    cms_subjects[cms_subject].published=False                    
                     cms_subjects[cms_subject].upsert()
+                    print(f"{cms_subjects[cms_subject].title} has been unpublished because it is no longer on data commons")
                     refresh_needed=True
 
             #For all active CMS subjects, get sessions
@@ -253,6 +258,8 @@ class DataCommons():
                     cms_has_session=False
                     for cms_session in cms_sessions:
                         if cms_sessions[cms_session].title==dc_session:
+                            if cms_sessions[cms_session].published==False:
+                                print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
                             cms_has_session=True
                             break
                     if not cms_has_session:
@@ -274,6 +281,9 @@ class DataCommons():
                     for dc_session in dc_sessions:
                         if cms_sessions[cms_session].title==dc_session:
                             dc_has_session=True
+                            if cms_sessions[cms_session].published==False:
+                                print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
+                            
                             break
                     if not dc_has_session:
                         cms_sessions[cms_session].published=False

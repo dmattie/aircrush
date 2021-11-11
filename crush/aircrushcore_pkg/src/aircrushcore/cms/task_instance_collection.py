@@ -76,38 +76,48 @@ class TaskInstanceCollection():
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host                       
             if len(r.json()['data'])!=0:
-
-                for item in r.json()['data']:
-                    #print(".",end='')
-                    if(item['type']=='node--task_instance'):
-                        
-                        uuid=item['id']
-
-                        try:
-                            body=item['attributes']['body']['value']
-                        except:
-                            body=""
-
-                        try:
-                            metadata={    
-                                "title":item['attributes']['title']  ,                            
-                                "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
-                                "field_associated_participant_ses":item['relationships']['field_associated_participant_ses']['data']['id'],
-                                "body":body,
-                                "field_remaining_retries":item['attributes']['field_remaining_retries'],
-                                "field_status":item['attributes']['field_status'],
-                                "field_task":item['relationships']['field_task']['data']['id'],                            
-                                "uuid":uuid,
-                                "cms_host":self.HOST                                               
-                            }
-                            #print("\n\n------------------------------------\n\n")
-
-
-                            taskinstances[item['id']]=TaskInstance(metadata=metadata)                
-                        except:
-                            print("ERROR:Some task instances may be malformed and ignored")
+                not_done=True
+                while not_done:
+                    page_of_taskinstances = self._json2taskinstance(r.json()['data'])
+                    for ti in page_of_taskinstances:
+                        taskinstances[ti]=page_of_taskinstances[ti] 
+                    if 'next' in r.json()['links']:
+                        r = self.HOST.get(r.json()['links']['next']['href'])
+                    else:
+                        not_done=False                
             return taskinstances
         else:      
             print(r.status_code)      
             return None
 
+
+    def _json2taskinstance(self,json):
+         #for item in r.json()['data']:
+        taskinstances={}
+        for item in json:
+            #print(".",end='')
+            if(item['type']=='node--task_instance'):
+                
+                uuid=item['id']
+
+                try:
+                    body=item['attributes']['body']['value']
+                except:
+                    body=""
+
+                try:
+                    metadata={    
+                        "title":item['attributes']['title']  ,                            
+                        "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
+                        "field_associated_participant_ses":item['relationships']['field_associated_participant_ses']['data']['id'],
+                        "body":body,
+                        "field_remaining_retries":item['attributes']['field_remaining_retries'],
+                        "field_status":item['attributes']['field_status'],
+                        "field_task":item['relationships']['field_task']['data']['id'],                            
+                        "uuid":uuid,
+                        "cms_host":self.HOST                                               
+                    }
+                    taskinstances[item['id']]=TaskInstance(metadata=metadata)                
+                except:
+                    print("ERROR:Some task instances may be malformed and ignored")
+        return taskinstances

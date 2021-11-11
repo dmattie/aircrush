@@ -13,12 +13,16 @@ class Host:
           endpoint=self.endpoint,
           username=self.username,
           password=self.password)
-        self.session=self.connection.get_connection_token()
+        try:
+          self.session=self.connection.get_connection_token()
+        except Exception as e:
+          raise Exception(f"Unable to make a conection. ({e})")
         #print(f"host.session={self.session}")
 
     def get(self,url):
       head = {"Accept":"application/vnd.api+json","Content-Type":"application/vnd.api+json","X-CSRF-Token":self.connection.csrf_token}
-      url=f"{self.connection.endpoint}{url}"
+      if url[0:4]!="http":
+        url=f"{self.connection.endpoint}{url}"
       r = self.session.get(url, headers=head)
       return r
 

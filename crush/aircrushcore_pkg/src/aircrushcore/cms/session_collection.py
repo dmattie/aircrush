@@ -54,30 +54,37 @@ class SessionCollection():
         if r.status_code==200:  #We can connect to CRUSH host           
               
             if len(r.json()['data'])!=0:
-            #    print(f"SessionCollection:: No sessions found on CRUSH Host.[{url}]")                
-            #else:                     
-                for item in r.json()['data']:
-                    if(item['type']=='node--session'):
-                        
-                        uuid=item['id']
+                not_done=True
+                while not_done:
 
-                        metadata={    
-                            "title":item['attributes']['title']  ,                            
-                            "field_participant":item['relationships']['field_participant']['data']['id'] ,                               
-                            "field_status":item['attributes']['field_status'],
-                            "uuid":uuid,
-                            "sticky":item['attributes']['sticky'],
-                            "cms_host":self.HOST                                               
-                        }    
-
-                        
-                        try:
-                            metadata["field_responsible_compute_node"]= item['relationships']['field_responsible_compute_node']['data']['id']
-                        except:
-                            pass
-
-                        sessions[item['id']]=Session(metadata=metadata)                        
+                    page_of_sessions = self._json2session(r.json()['data'])
+                    for ses in page_of_sessions:
+                        sessions[ses]=page_of_sessions[ses]                    
+                    if 'next' in r.json()['links']:
+                        r = self.HOST.get(r.json()['links']['next']['href'])
+                    else:
+                        not_done=False
             return sessions
         else:
             return None
 
+    def _json2session(self,json):         
+        sessions={}
+        for item in json:
+            if(item['type']=='node--session'):                
+                uuid=item['id']
+                metadata={    
+                    "title":item['attributes']['title']  ,                            
+                    "field_participant":item['relationships']['field_participant']['data']['id'] ,                               
+                    "field_status":item['attributes']['field_status'],
+                    "uuid":uuid,
+                    "sticky":item['attributes']['sticky'],
+                    "cms_host":self.HOST                                               
+                }                    
+                try:
+                    metadata["field_responsible_compute_node"]= item['relationships']['field_responsible_compute_node']['data']['id']
+                except:
+                    pass
+
+                sessions[item['id']]=Session(metadata=metadata)
+        return sessions

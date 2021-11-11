@@ -35,28 +35,42 @@ class PipelineCollection():
         
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
-              
-            if len(r.json()['data'])==0:
-                print(f"PipelineCollection:: No pipelines found on CRUSH Host.[{url}]")                
-            else:       
-                for item in r.json()['data']:
-                    if(item['type']=='node--pipeline'):
-                        
-                        uuid=item['id']
+            
+            if len(r.json()['data'])!=0:
+                not_done=True
+                while not_done:
 
-                        metadata={    
-                            "title":item['attributes']['title']  ,                            
-                            "field_author":item['attributes']['field_author'],   
-                            "field_author_email":item['attributes']['field_author_email'],   
-                            "body":item['attributes']['body'],
-                            "field_id":item['attributes']['field_id'],
-                            "field_plugin_warnings":item['attributes']['field_plugin_warnings'],
-                            "uuid":uuid,
-                            "cms_host":self.HOST                                               
-                        }
+                    page_of_pipelines = self._json2pipeline(r.json()['data'])
+                    for pipe in page_of_pipelines:
+                        pipelines[pipe]=page_of_pipelines[pipe]                    
 
-                        pipelines[item['id']]=Pipeline(metadata=metadata)                
+                    if 'next' in r.json()['links']:
+                        r = self.HOST.get(r.json()['links']['next']['href'])
+                    else:
+                        not_done=False
+
             return pipelines
         else:
             return None
 
+    def _json2pipeline(self,json):
+         #for item in r.json()['data']:
+        pipelines={}
+        for item in json:
+            if(item['type']=='node--pipeline'):
+            
+                uuid=item['id']
+
+                metadata={    
+                    "title":item['attributes']['title']  ,                            
+                    "field_author":item['attributes']['field_author'],   
+                    "field_author_email":item['attributes']['field_author_email'],   
+                    "body":item['attributes']['body'],
+                    "field_id":item['attributes']['field_id'],
+                    "field_plugin_warnings":item['attributes']['field_plugin_warnings'],
+                    "uuid":uuid,
+                    "cms_host":self.HOST                                               
+                }
+
+                pipelines[item['id']]=Pipeline(metadata=metadata)                
+        return pipelines

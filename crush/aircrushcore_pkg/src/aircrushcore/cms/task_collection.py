@@ -49,34 +49,47 @@ class TaskCollection():
         r = self.HOST.get(url)
         if r.status_code==200:  #We can connect to CRUSH host           
               
-            if len(r.json()['data'])==0:
-                print(f"TaskCollection:: No tasks found on CRUSH Host.[{url}]")                
-            else:    
-                  
-                for item in r.json()['data']:
-                    if(item['type']=='node--task'):
-                        #print("xxxxxxxxxxxxxxxxxxxxxx")
-                        
-                        uuid=item['id']
+            if len(r.json()['data'])!=0:
+                not_done=True
+                while not_done:
 
-                        prereqs=[]
-                        for pre in item['relationships']['field_prerequisite_tasks']['data']:
-                            prereqs.append(pre)
+                    page_of_tasks = self._json2task(r.json()['data'])
+                    for tsk in page_of_tasks:
+                        tasks[tsk]=page_of_tasks[tsk]                    
 
-                        metadata={    
-                            "title":item['attributes']['title']  ,                            
-                            "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
-                            "field_id":item['attributes']['field_id'],
-                            "field_parameters":item['attributes']['field_parameters'],
-                            "field_prerequisite_tasks":prereqs,#item['relationships']['field_prerequisite_tasks']['data']['id'],
-                            "field_operator":item['attributes']['field_operator'],
-                            "field_singularity_container":item['attributes']['field_singularity_container'],    
-                            "uuid":uuid,
-                            "cms_host":self.HOST                                               
-                        }                        
-
-                        tasks[item['id']]=Task(metadata=metadata)                
+                    if 'next' in r.json()['links']:
+                        r = self.HOST.get(r.json()['links']['next']['href'])
+                    else:
+                        not_done=False  
+                              
             return tasks
         else:
             return None
 
+
+    def _json2task(self,json):
+         
+        tasks={}
+        for item in json:
+            if(item['type']=='node--task'):
+
+                uuid=item['id']
+
+                prereqs=[]
+                for pre in item['relationships']['field_prerequisite_tasks']['data']:
+                    prereqs.append(pre)
+
+                metadata={    
+                    "title":item['attributes']['title']  ,                            
+                    "field_pipeline":item['relationships']['field_pipeline']['data']['id'] ,   
+                    "field_id":item['attributes']['field_id'],
+                    "field_parameters":item['attributes']['field_parameters'],
+                    "field_prerequisite_tasks":prereqs,#item['relationships']['field_prerequisite_tasks']['data']['id'],
+                    "field_operator":item['attributes']['field_operator'],
+                    "field_singularity_container":item['attributes']['field_singularity_container'],    
+                    "uuid":uuid,
+                    "cms_host":self.HOST                                               
+                }                        
+
+                tasks[item['id']]=Task(metadata=metadata)                
+        return tasks
