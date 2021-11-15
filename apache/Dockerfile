@@ -13,9 +13,7 @@ RUN mkdir /usr/local/drupal_sync
 RUN chmod a+w /usr/local/drupal_sync
 RUN mkdir -p /var/www/html/sites/default/files/config_Z4M5xDXtp7oR0EqUCjwQMhk81aieDILyI6O2SeKlRy4JxfhMJGx1-jnLEjss2cxmEN_MzkbxaQ/sync
 RUN chmod a+w -R /var/www/html/sites/default/files
-RUN drush en migrate
-RUN drush en unique_entity_title
-RUN drush en basic_auth
+
 #http://aircrush/admin/config/services/jsonapi
 
 # RUN drush config:set system.site page.front node
