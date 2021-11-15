@@ -88,7 +88,7 @@ class TaskInstanceCollection():
             return taskinstances
         else:      
             print(r.status_code)      
-            return None
+            return taskinstances
 
 
     def _json2taskinstance(self,json):
@@ -113,6 +113,10 @@ class TaskInstanceCollection():
                         "body":body,
                         "field_remaining_retries":item['attributes']['field_remaining_retries'],
                         "field_status":item['attributes']['field_status'],
+                        "field_jobid":item['attributes']['field_jobid'],
+                        "field_seff":item['attributes']['field_seff'],
+                        "field_errorfile":item['attributes']['field_errorfile'],
+                        "field_logfile":item['attributes']['field_logfile'],
                         "field_task":item['relationships']['field_task']['data']['id'],                            
                         "uuid":uuid,
                         "cms_host":self.HOST                                               

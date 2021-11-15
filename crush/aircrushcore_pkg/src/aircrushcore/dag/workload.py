@@ -5,7 +5,7 @@ from aircrushcore.controller.configuration import AircrushConfig
 from aircrushcore.cms import Host,Task,TaskCollection,ComputeNodeCollection,ComputeNode,SessionCollection
 from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
-
+import urllib
 class Workload:
     def __init__(self,aircrush:AircrushConfig):            
         self.aircrush=aircrush 
@@ -14,6 +14,28 @@ class Workload:
             username=aircrush.config['REST']['username'],
             password=aircrush.config['REST']['password']
             )  
+        try:
+            self.concurrency_limit=int(aircrush.config['COMPUTE']['concurrency_limit'])
+        except Exception as e:
+            print("Configuration setting concurrency_limit in COMPUTE section not found or not an integer. Defaulting to 2.")
+            self.concurrency_limit=2
+
+        try:
+            self.seconds_between_failures=int(aircrush.config['COMPUTE']['seconds_between_failures'])
+        except Exception as e:
+            print("Configuration setting seconds_between_failures in COMPUTE section not found or not an integer. Defaulting to 18000 (5 hours).")
+            self.seconds_between_failures=18000
+
+    def get_running_tasks(self,node_uuid:str):
+        #Look for tasks initiated by this compute node(node-uuid)
+        #Used to determine job status
+        compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
+        compute_node = compute_node_coll.get_one(uuid=node_uuid)
+
+        filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=running&filter[status-filter][condition][value][2]=limping"
+        tic = TaskInstanceCollection(cms_host=self.crush_host)        
+        tic_col = tic.get(filter=filter)
+        return tic_col
 
     def get_next_task(self,node_uuid:str):
         ###################################################################
@@ -42,12 +64,35 @@ class Workload:
                 if session.field_responsible_compute_node == node_uuid: # This session has been allocated to the node asking for work
                     #print(f"Candidate task instance {ti.title}")
                     task = ti.task_definition()
-                    if not self.unmet_dependencies(task,ti):
-                        #Ignore any with unmet dependencies
-                       # t = tic_col[list(tic_col)[0]]                       
-                       return ti
+                    if not self.unmet_dependencies(task,ti): #Ignore any with unmet dependencies
+                        
+                       if ti.field_jobid and ti.field_status=='failed':
+                           #Let's see if this has failed long enough ago that we can go again
+                            duration=duration_since_job_end(ti.field_jobid)
+                            if duration>self.seconds_between_failures:
+                                return ti
+                        else
+                            return ti
                     #else:
                     #    print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
+    def duration_since_job_end(jobid):
+        # This command gets the seconds since unix epoch of job end and
+        # seconds since unix epoch for now to get seconds between now and job failure
+        cmd=f"expr $( date +%s ) - $( date "+%s" -d $( sacct -j {jobid}|head -3|tail -1|cut -c 55-74 ) )"
+        code,out=getstatusoutput(cmd)
+        if code==0:
+            try:
+                return int(out)
+            except:
+                return -1
+        return -1
+        
+    
+    def getstatusoutput(command):
+    print(command)    
+    process = subprocess.Popen(command, stdout=subprocess.PIPE)
+    out, _ = process.communicate()
+    return (process.returncode, out)
 
     def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
         session_uuid=candidate_ti.associated_session()
@@ -74,16 +119,17 @@ class Workload:
     def _distribute_sessions_to_node(self,compute_node:ComputeNode):
         allocated_sessions = compute_node.allocated_sessions()
         
-        if compute_node.concurrency_limit<=len(allocated_sessions):            
-            print(f"\tCompute node at capacity ({compute_node.concurrency_limit} sessions). See crush.ini to increase limits.")
+        if int(self.concurrency_limit)<=len(allocated_sessions):            
+            print(f"\tCompute node at capacity ({self.concurrency_limit} sessions). See ~/.crush.ini to increase limits.")
             #return
         else:
         
             ses_col = SessionCollection(cms_host=self.crush_host)
                 #Get sessions that don't have a compute node allocated
-                #outstanding_sessions = ses_col.get(filter="&filter[field_status][value]=notstarted")
-                #outstanding_sessions = ses_col.get(filter="&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]=IS NULL")
-            outstanding_sessions = ses_col.get()
+            outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[field_status][value]=notstarted")
+            #isnull=urllib.parse.quote_plus("IS NULL")
+            #outstanding_sessions = ses_col.get(page_limit=1,filter=f"&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]={isnull}")
+            #outstanding_sessions = ses_col.get(page_limit=1)
             for ses_uid in outstanding_sessions:
                 session=ses_col.get_one(ses_uid)
                 if session.field_responsible_compute_node is None:
@@ -92,7 +138,7 @@ class Workload:
                     print(f"Allocating {project.title}/{subject.title}/{session.title}")
                     compute_node.allocate_session(session_uuid=session.uuid)                
                     allocated_sessions = compute_node.allocated_sessions()
-                    if compute_node.concurrency_limit<=len(allocated_sessions):
+                    if self.concurrency_limit<=len(allocated_sessions):
                         break
 
         compute_node.refresh_task_instances()

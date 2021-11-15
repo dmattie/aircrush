@@ -175,11 +175,15 @@ class ComputeNode():
         #            print(f"\t\t\ttask uuid:{task_uuid}")
                                       
                     #Look for a task instance for this pipeline.task associated with this session
-                    ti_col = TaskInstanceCollection(cms_host=self.HOST,pipeline=pipeline_uuid,task=task_uuid,session=session.uuid)
-                    
+                   ##This caused a TIMEOUT ti_col = TaskInstanceCollection(cms_host=self.HOST,pipeline=pipeline_uuid,task=task_uuid,session=session.uuid)
+                    ti_col = TaskInstanceCollection(cms_host=self.HOST,session=session.uuid)
                     matching_tis = ti_col.get()
+                    ti_exists=False
+                    for match in matching_tis:
+                        if matching_tis[match].field_pipeline==pipeline_uuid and matching_tis[match].field_task==task_uuid:
+                            ti_exists=True
                     
-                    if len(matching_tis)==0:
+                    if not ti_exists:
         #                print("\t\t\tCreate TI")
                         #Create this task instance
                         task = task_col.get_one(task_uuid)

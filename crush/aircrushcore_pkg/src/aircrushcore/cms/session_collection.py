@@ -10,6 +10,7 @@ class SessionCollection():
         
         self.subject=None
         self.project=None
+
     
 
         if "cms_host" in kwargs:
@@ -48,6 +49,10 @@ class SessionCollection():
             custom_filter=kwargs['filter']
         else:
             custom_filter=""
+        if 'page_limit' in kwargs:
+            page_limit=kwargs['page_limit']
+        else:
+            page_limit=9999
 
         url=f"jsonapi/node/session?{filter}{filter_uuid}{custom_filter}"           
         r = self.HOST.get(url)
@@ -55,15 +60,21 @@ class SessionCollection():
               
             if len(r.json()['data'])!=0:
                 not_done=True
+                pages_remaining=page_limit
                 while not_done:
 
                     page_of_sessions = self._json2session(r.json()['data'])
-                    for ses in page_of_sessions:
+                    
+                    for ses in page_of_sessions:                    
                         sessions[ses]=page_of_sessions[ses]                    
                     if 'next' in r.json()['links']:
                         r = self.HOST.get(r.json()['links']['next']['href'])
                     else:
                         not_done=False
+                    pages_remaining-=1
+                    if pages_remaining<0:
+                        break
+
             return sessions
         else:
             return None

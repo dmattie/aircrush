@@ -186,7 +186,11 @@ class DataCommons():
     #     return None
   
             
-    def SyncWithCMS(self):
+    def SyncWithCMS(self,**kwargs):
+        republish=False
+        if 'republish' in kwargs:
+            republish=kwargs['republish']
+
         print("Synchronizing CMS with data commons...")
         cms_project_collection = ProjectCollection(cms_host=self.cms_host)
         cms_projects=cms_project_collection.get()
@@ -217,9 +221,11 @@ class DataCommons():
                     if cms_subjects[cms_subject].title==dc_subject:
                         cms_has_subject=True
                         if cms_subjects[cms_subject].published==False:
-                            #cms_subjects[cms_subject].published=True                            
-                            #cms_subjects[cms_subject].upsert()
-                            print(f"[INFO] {cms_subjects[cms_subject].title} is unpublished but exists on data commons.  Consider re-publishing.")
+                            if republish:
+                                cms_subjects[cms_subject].published=True                            
+                                cms_subjects[cms_subject].upsert()
+                            else:
+                                print(f"[INFO] {cms_subjects[cms_subject].title} is unpublished but exists on data commons.  Consider re-publishing.")
                         break
                 if not cms_has_subject:
                     #Upsert it
@@ -247,19 +253,25 @@ class DataCommons():
             #For all active CMS subjects, get sessions
             if refresh_needed:
                 cms_subjects = cms_subject_collection.get()
-
-            cms_session_collection = SessionCollection(cms_host=self.cms_host,project=cms_project_uid)            
-            cms_sessions = cms_session_collection.get()
+            
 
             for cms_subject in cms_subjects:
                 dc_sessions = self.Sessions(cms_projects[cms_project_uid].title, cms_subjects[cms_subject].title)
+                
+                cms_session_collection = SessionCollection(cms_host=self.cms_host,project=cms_project_uid,subject=cms_subject)            
+                cms_sessions = cms_session_collection.get()
+                
                 refresh_needed=False
                 for dc_session in dc_sessions:
                     cms_has_session=False
                     for cms_session in cms_sessions:
                         if cms_sessions[cms_session].title==dc_session:
                             if cms_sessions[cms_session].published==False:
-                                print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
+                                if republish:
+                                    cms_sessions[cms_session].published=True
+                                    cms_sessions[cms_session].upsert()
+                                else:
+                                    print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
                             cms_has_session=True
                             break
                     if not cms_has_session:
@@ -282,7 +294,11 @@ class DataCommons():
                         if cms_sessions[cms_session].title==dc_session:
                             dc_has_session=True
                             if cms_sessions[cms_session].published==False:
-                                print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
+                                if republish:
+                                    cms_sessions[cms_session].published=True
+                                    cms_sessions[cms_session].upsert()
+                                else:
+                                    print(f"Session {cms_sessions[cms_session].title} is unpublished but exists on data commons. Consider re-publishing")
                             
                             break
                     if not dc_has_session:
@@ -292,12 +308,12 @@ class DataCommons():
         return True
 
 
-if __name__ == '__main__':
-    homedir=os.path.expanduser('~')
-    crush_config=f"{homedir}/.crush.ini"
-    aircrush=AircrushConfig(crush_config)
-    dc=DataCommons(aircrush)
-    dc.SyncWithCMS()
+# if __name__ == '__main__':
+#     homedir=os.path.expanduser('~')
+#     crush_config=f"{homedir}/.crush.ini"
+#     aircrush=AircrushConfig(crush_config)
+#     dc=DataCommons(aircrush)
+#     dc.SyncWithCMS()
     
 
 

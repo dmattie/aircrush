@@ -19,6 +19,10 @@ class TaskInstance():
         self.HOST=None
         self.published=None
         self.field_errorlog=None
+        self.field_jobid=None
+        self.field_seff=None
+        self.field_errorfile=None
+        self.field_logfile=None
     
         if 'metadata' in kwargs:
             m=kwargs['metadata']   
@@ -45,13 +49,22 @@ class TaskInstance():
                 self.uuid=m['uuid'] 
             if 'published' in m:
                 self.published=m['published'] #Published indicator is actually 'status'
+            if 'field_jobid' in m:                
+                self.field_jobid=m['field_jobid']
+            if 'field_seff' in m:                
+                self.field_seff=m['field_seff']
+            if 'field_errorfile' in m:
+                self.field_errorfile=m['field_errorfile']
+            if 'field_logfile' in m:
+                self.field_logfile=m['field_logfile']
+                               
                 
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
     def upsert(self):
-
+            
             payload = {
                 "data" : {
                     "type":"node--task_instance",                                                         
@@ -129,7 +142,19 @@ class TaskInstance():
                # payload['data']['relationships']['field_task']['data']['id']=self.field_task
                 payload['data']['relationships']['field_task']=field_task
             
-                
+            
+            if self.field_jobid:
+                payload['data']['attributes']['field_jobid']=self.field_jobid
+
+            if self.field_seff:
+                payload['data']['attributes']['field_seff']=self.field_seff
+                    
+            if self.field_errorfile:
+                payload['data']['attributes']['field_errorfile']=self.field_errorfile
+
+            if self.field_logfile:
+                payload['data']['attributes']['field_logfile']=self.field_logfile
+
             if self.uuid:   #Update existing  
                 
                 payload['data']['id']=self.uuid                                                                     
@@ -137,6 +162,7 @@ class TaskInstance():
             else:            
                 #print(json.dumps(payload))
                 r= self.HOST.post("jsonapi/node/task_instance",payload)
+
 
             if(r.status_code!=200 and r.status_code!=201):  
                  raise ValueError(f"TaskInstance upsert failed [{self.uuid}/{self.title}] on CMS HOST: {r.status_code}\n\t{r.reason}")                             

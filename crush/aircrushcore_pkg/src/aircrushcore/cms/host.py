@@ -4,6 +4,7 @@ import requests
 import json
 from requests_toolbelt.utils import dump
 
+
 class Host:
     def __init__(self,username:str, password:str ,endpoint:str):            
         self.username=username
@@ -22,7 +23,8 @@ class Host:
     def get(self,url):
       head = {"Accept":"application/vnd.api+json","Content-Type":"application/vnd.api+json","X-CSRF-Token":self.connection.csrf_token}
       if url[0:4]!="http":
-        url=f"{self.connection.endpoint}{url}"
+        url=f"{self.connection.endpoint}{url}"        
+
       r = self.session.get(url, headers=head)
       return r
 

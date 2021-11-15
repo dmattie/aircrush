@@ -6,10 +6,11 @@ from aircrushcore.datacommons.data_commons import DataCommons
 from aircrushcore.controller.configuration import AircrushConfig
 
 
-
-#crush_config='crush.ini'
-homedir=os.path.expanduser('~')
-crush_config=f"{homedir}/.crush.ini"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+crush_config=f"{dir_path}/crush.ini"
+print(crush_config)
+f = open(crush_config,'r')
+file_contents = f.read()
 aircrush=AircrushConfig(crush_config)
 print(aircrush.config['COMMONS']['commons_path'])
 dc = DataCommons(aircrush)

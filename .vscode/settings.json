@@ -1,4 +1,9 @@
 {
     "python.terminal.activateEnvironment": false,
-    "python.pythonPath":"~/environments/aircrush/bin/python"
+    "python.pythonPath": "~/environments/aircrush/bin/python",
+    "python.testing.pytestArgs": [
+        "crush"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
