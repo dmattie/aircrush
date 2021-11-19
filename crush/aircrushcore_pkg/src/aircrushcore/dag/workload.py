@@ -5,6 +5,7 @@ from aircrushcore.controller.configuration import AircrushConfig
 from aircrushcore.cms import Host,Task,TaskCollection,ComputeNodeCollection,ComputeNode,SessionCollection
 from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
+import subprocess
 import urllib
 class Workload:
     def __init__(self,aircrush:AircrushConfig):            
@@ -29,13 +30,17 @@ class Workload:
     def get_running_tasks(self,node_uuid:str):
         #Look for tasks initiated by this compute node(node-uuid)
         #Used to determine job status
+        tis_on_this_node={}
         compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
         compute_node = compute_node_coll.get_one(uuid=node_uuid)
 
         filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=running&filter[status-filter][condition][value][2]=limping"
         tic = TaskInstanceCollection(cms_host=self.crush_host)        
         tic_col = tic.get(filter=filter)
-        return tic_col
+        for ti in tic_col:
+            if tic_col[ti].associated_session().field_responsible_compute_node==node_uuid:
+                tis_on_this_node[ti]=tic_col[ti]
+        return tis_on_this_node
 
     def get_next_task(self,node_uuid:str):
         ###################################################################
@@ -66,20 +71,23 @@ class Workload:
                     task = ti.task_definition()
                     if not self.unmet_dependencies(task,ti): #Ignore any with unmet dependencies
                         
-                       if ti.field_jobid and ti.field_status=='failed':
+                        if ti.field_jobid and ti.field_status=='failed':
                            #Let's see if this has failed long enough ago that we can go again
-                            duration=duration_since_job_end(ti.field_jobid)
+                            duration=self.duration_since_job_end(ti.field_jobid)
                             if duration>self.seconds_between_failures:
                                 return ti
-                        else
+                            else:
+                                print(f"{ti.title} recently failed and will not be re-attempted until {self.seconds_between_failures} seconds have elapsed after failure.  See ~/.crush.ini ")
+                        else:
                             return ti
                     #else:
                     #    print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
-    def duration_since_job_end(jobid):
+    def duration_since_job_end(self,jobid):
         # This command gets the seconds since unix epoch of job end and
         # seconds since unix epoch for now to get seconds between now and job failure
-        cmd=f"expr $( date +%s ) - $( date "+%s" -d $( sacct -j {jobid}|head -3|tail -1|cut -c 55-74 ) )"
-        code,out=getstatusoutput(cmd)
+        cmd=f"expr $( date +%s ) - $( date \"+%s\" -d $( sacct -j {jobid}|head -3|tail -1|cut -c 55-74 ) )"
+        
+        code,out = self.getstatusoutput(cmd)
         if code==0:
             try:
                 return int(out)
@@ -88,11 +96,11 @@ class Workload:
         return -1
         
     
-    def getstatusoutput(command):
-    print(command)    
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    out, _ = process.communicate()
-    return (process.returncode, out)
+    def getstatusoutput(self,command):
+        #print(command)    
+        process = subprocess.Popen(command, stdout=subprocess.PIPE,shell=True)
+        out, _ = process.communicate()
+        return (process.returncode, out)
 
     def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
         session_uuid=candidate_ti.associated_session()

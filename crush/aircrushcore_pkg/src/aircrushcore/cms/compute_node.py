@@ -188,9 +188,10 @@ class ComputeNode():
                         #Create this task instance
                         task = task_col.get_one(task_uuid)
                         pipeline = task.pipeline()#pipe_col.get_one(uuid=pipeline_uuid)
+                        subject = session.subject()
         #                print("c")
                         metadata={
-                            "title":f"{pipeline.title}/{task.title} ({task.field_operator}) on {session.title}",
+                            "title":f"{pipeline.title}/{task.title} ({task.field_operator}) on {subject.title}/{session.title}",
                             "field_associated_participant_ses":session.uuid,
                             "field_pipeline":pipeline_uuid,                                                                       
                             "field_task":task_uuid,

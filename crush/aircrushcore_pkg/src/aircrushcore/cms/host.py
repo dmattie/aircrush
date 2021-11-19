@@ -9,7 +9,8 @@ class Host:
     def __init__(self,username:str, password:str ,endpoint:str):            
         self.username=username
         self.password=password
-        self.endpoint=endpoint     
+        self.endpoint=endpoint    
+        print(f"Connecting to CMS ({endpoint})...") 
         self.connection=host_connection(
           endpoint=self.endpoint,
           username=self.username,
