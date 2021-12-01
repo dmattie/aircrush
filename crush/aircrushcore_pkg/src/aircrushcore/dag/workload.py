@@ -75,6 +75,7 @@ class Workload:
                            #Let's see if this has failed long enough ago that we can go again
                             duration=self.duration_since_job_end(ti.field_jobid)
                             if duration>self.seconds_between_failures:
+                                print(f"{ti.title} recently failed ({self.seconds_between_failures} seconds ago).  Re-attempting...")
                                 return ti
                             else:
                                 print(f"{ti.title} recently failed and will not be re-attempted until {self.seconds_between_failures} seconds have elapsed after failure.  See ~/.crush.ini ")
@@ -98,9 +99,12 @@ class Workload:
     
     def getstatusoutput(self,command):
         #print(command)    
-        process = subprocess.Popen(command, stdout=subprocess.PIPE,shell=True)
-        out, _ = process.communicate()
-        return (process.returncode, out)
+        try:
+            process = subprocess.Popen(command, stdout=subprocess.PIPE,shell=True)
+            out, _ = process.communicate()
+            return (process.returncode, out)
+        except:
+            print(f"Command attempted but failed: {command}")
 
     def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
         session_uuid=candidate_ti.associated_session()
