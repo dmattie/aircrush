@@ -1,3 +1,4 @@
+from aircrushcore.cms.pipeline_collection import PipelineCollection
 from .task_collection import TaskCollection
 from .task import Task
 from .session import Session
@@ -187,4 +188,7 @@ class TaskInstance():
     def associated_session(self):
         session = SessionCollection(cms_host=self.HOST).get_one(uuid=self.field_associated_participant_ses)            
         return session
+    def pipeline(self):
+        pipeline = PipelineCollection(cms_host=self.HOST).get_one(uuid=self.field_pipeline)
+        return pipeline
         
