@@ -94,17 +94,18 @@ class Workload:
                 return int(out)
             except:
                 return -1
+        else:
+            print(f"Failed to determine duration since job end of job id {jobid}")
         return -1
         
     
     def getstatusoutput(self,command):
         #print(command)    
-        try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE,shell=True)
-            out, _ = process.communicate()
-            return (process.returncode, out)
-        except:
-            print(f"Command attempted but failed: {command}")
+        
+        process = subprocess.Popen(command, stdout=subprocess.PIPE,shell=True)
+        out, _ = process.communicate()
+        return (process.returncode, out)
+
 
     def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
         session_uuid=candidate_ti.associated_session()
