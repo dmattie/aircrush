@@ -143,9 +143,11 @@ class Workload:
                 if session.field_responsible_compute_node is None:
                     subject=session.subject()
                     project=subject.project()
-                    print(f"subject:{subject}")
-                    print(f"project:{project}")
-                    print(f"session:{session}")
+
+                    if subject == None or project == None:
+                        print(f"Session {session.title} is orphaned, please conduct a health check.  Skipping")
+                        continue
+
                     print(f"Allocating {project.title}/{subject.title}/{session.title}")
                     compute_node.allocate_session(session_uuid=session.uuid)                
                     allocated_sessions = compute_node.allocated_sessions()
