@@ -153,12 +153,12 @@ class Workload:
             outstanding_projects = proj_col.get(filter="&sort=-sticky") #Get sticky first (note the "-"" for descending)
 
             for outstanding_project in outstanding_projects:
-
+                print(f"Considering {outstanding_projects[outstanding_project].title} for sessios to process")
                 #Starting at subjects that are sticky (priority), iterate looking for sessions not yet allocated
                 #    
                 sub_col = SubjectCollection(cms_host=self.crush_host,project=outstanding_project)                
                 outstanding_subjects = sub_col.get(filter="&filter[field_status][value]=notstarted&sort=-sticky")
-
+                print(f"\t{len(outstanding_subjects)} subjects not started")
                 for outstanding_subject in outstanding_subjects:
 
                     ses_col = SessionCollection(cms_host=self.crush_host,subject=outstanding_subject)
@@ -167,6 +167,7 @@ class Workload:
                     #isnull=urllib.parse.quote_plus("IS NULL")
                     #outstanding_sessions = ses_col.get(page_limit=1,filter=f"&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]={isnull}")
                     #outstanding_sessions = ses_col.get(page_limit=1)
+                    print(f"\t\t{outstanding_subjects[outstanding_subject].title} has {len(outstanding_sessions)}  sessions not started")
                     for ses_uid in outstanding_sessions:
                         session=ses_col.get_one(ses_uid)
                         if session.field_responsible_compute_node is None:
