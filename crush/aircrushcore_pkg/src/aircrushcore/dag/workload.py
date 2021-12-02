@@ -70,7 +70,17 @@ class Workload:
                     #print(f"Candidate task instance {ti.title}")
                     task = ti.task_definition()
                     if not self.unmet_dependencies(task,ti): #Ignore any with unmet dependencies
-                        
+
+                        #If 
+                        tises=ti.associated_session()
+                        if not tises == None:
+                            tisessub=tises.subject()
+                            if not tisessub == None:
+                                tisessubproj=tisessub.project()                                
+                                if tisessubproj == None:
+                                    print('.', end='')
+                                    continue
+                               
                         if ti.field_jobid and ti.field_status=='failed':
                            #Let's see if this has failed long enough ago that we can go again
                             duration=self.duration_since_job_end(ti.field_jobid)
