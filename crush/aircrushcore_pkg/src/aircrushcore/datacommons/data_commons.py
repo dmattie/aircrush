@@ -63,10 +63,12 @@ class DataCommons():
         return subjects
 
     def Sessions(self,project:str,subject:str):
-        sessions=glob.glob(f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-{subject}/ses-*")
+        sespath = f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-{subject}/ses-*"
+        sessions=glob.glob(sespath)
         for index,value in enumerate(sessions):
             sessions[index]=os.path.basename(value.replace('ses-','') )
-        print(f"\t\t\tfound {len(sessions)} sessions")
+        if len(sessions)==0:
+            print(f"\t\t\tfound {len(sessions)} sessions in {sespath}")
         return sessions
 
     # def SyncWithCMS2(self):
