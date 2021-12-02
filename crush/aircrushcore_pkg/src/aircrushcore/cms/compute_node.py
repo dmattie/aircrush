@@ -160,6 +160,10 @@ class ComputeNode():
         #If there are task instances assigned to this session or there are no task instances...
         #print(f"\tsession_assigned_to_ti:{ses_assigned_to_ti}, session:{session.uuid}")
         if ses_assigned_to_ti is None or ses_assigned_to_ti==session.uuid:
+            project = session.project()
+            if project == None:
+                print(f"WARNING: Session {session.title} has been assigned to this compute node, but is orphaned or project is unpublished")
+                return
            
             activated_pipelines = session.project().field_activated_pipelines
             
