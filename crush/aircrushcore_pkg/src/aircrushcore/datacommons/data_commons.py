@@ -53,7 +53,7 @@ class DataCommons():
             return active_projects
 
     def Subjects(self,project: str):
-        subdir=f"{self.commons_path}/projects/{project.field_id}/datasets/rawdata/sub-*"
+        subdir=f"{self.commons_path}/projects/{project.field_path_to_exam_data}/datasets/rawdata/sub-*"
         print(f"\t\tLooking for subjects in {subdir}")
         subjects=glob.glob(subdir)
         
@@ -63,7 +63,7 @@ class DataCommons():
         return subjects
 
     def Sessions(self,project:str,subject:str):
-        sespath = f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-{subject}/ses-*"
+        sespath = f"{self.commons_path}/projects/{project.field_path_to_exam_data}/datasets/rawdata/sub-{subject}/ses-*"
         sessions=glob.glob(sespath)
         for index,value in enumerate(sessions):
             sessions[index]=os.path.basename(value.replace('ses-','') )
