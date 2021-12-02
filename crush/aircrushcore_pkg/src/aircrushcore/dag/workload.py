@@ -2,7 +2,7 @@ from aircrushcore.cms.task_instance_collection import TaskInstanceCollection
 from aircrushcore.cms.task_instance import TaskInstance
 from aircrushcore.controller.configuration import AircrushConfig
 #from aircrushcore.cms.host import Host
-from aircrushcore.cms import Host,Task,TaskCollection,ComputeNodeCollection,ComputeNode,SessionCollection
+from aircrushcore.cms import Host,Task,TaskCollection,ComputeNodeCollection,ComputeNode,SessionCollection,ProjectCollection,SubjectCollection
 from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
 import subprocess
@@ -136,28 +136,42 @@ class Workload:
             print(f"\tCompute node at capacity ({self.concurrency_limit} sessions). See ~/.crush.ini to increase limits.")
             #return
         else:
+
+            # Starting at projects that have sticky bit turned on, iterate projects to find sessions not yet allocated
         
-            ses_col = SessionCollection(cms_host=self.crush_host)
-                #Get sessions that don't have a compute node allocated
-            outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[field_status][value]=notstarted")
-            #isnull=urllib.parse.quote_plus("IS NULL")
-            #outstanding_sessions = ses_col.get(page_limit=1,filter=f"&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]={isnull}")
-            #outstanding_sessions = ses_col.get(page_limit=1)
-            for ses_uid in outstanding_sessions:
-                session=ses_col.get_one(ses_uid)
-                if session.field_responsible_compute_node is None:
-                    subject=session.subject()
-                    project=subject.project()
+            proj_col = ProjectCollection(cms_host=self.crush_host)
+            outstanding_projects = proj_col.get(filter="&sort=-sticky") #Get sticky first (note the "-"" for descending)
 
-                    if subject == None or project == None:
-                        print(f"Session {session.title} is orphaned, please conduct a health check.  Skipping")
-                        continue
+            for outstanding_project in outstanding_projects:
 
-                    print(f"Allocating {project.title}/{subject.title}/{session.title}")
-                    compute_node.allocate_session(session_uuid=session.uuid)                
-                    allocated_sessions = compute_node.allocated_sessions()
-                    if self.concurrency_limit<=len(allocated_sessions):
-                        break
+                #Starting at subjects that are sticky (priority), iterate looking for sessions not yet allocated
+                #    
+                sub_col = SubjectCollection(cms_host=self.crush_host,project=outstanding_project)                
+                outstanding_subjects = sub_col.get(filter="&filter[field_status][value]=notstarted&sort=-sticky")
+
+                for outstanding_subject in outstanding_subjects:
+
+                    ses_col = SessionCollection(cms_host=self.crush_host,subject=outstanding_subject)
+                        #Get sessions that don't have a compute node allocated
+                    outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[field_status][value]=notstarted")
+                    #isnull=urllib.parse.quote_plus("IS NULL")
+                    #outstanding_sessions = ses_col.get(page_limit=1,filter=f"&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]={isnull}")
+                    #outstanding_sessions = ses_col.get(page_limit=1)
+                    for ses_uid in outstanding_sessions:
+                        session=ses_col.get_one(ses_uid)
+                        if session.field_responsible_compute_node is None:
+                            subject=session.subject()
+                            project=subject.project()
+
+                            if subject == None or project == None:
+                                print(f"Session {session.title} is orphaned, please conduct a health check.  Skipping")
+                                continue
+
+                            print(f"Allocating {project.title}/{subject.title}/{session.title}")
+                            compute_node.allocate_session(session_uuid=session.uuid)                
+                            allocated_sessions = compute_node.allocated_sessions()
+                            if self.concurrency_limit<=len(allocated_sessions):
+                                break
 
         compute_node.refresh_task_instances()
         

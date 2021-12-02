@@ -20,6 +20,7 @@ RUN curl -sS https://getcomposer.org/installer | php && \
 # Install Drush
 RUN composer global require drush/drush && \
     composer global update 
+#RUN composer require drupal/jsonapi_views
 
 # PHP packages
 RUN apk add --update \
