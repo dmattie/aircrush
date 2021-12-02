@@ -53,12 +53,13 @@ class DataCommons():
             return active_projects
 
     def Subjects(self,project: str):
-
-        subjects=glob.glob(f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-*")
+        subdir=f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-*"
+        print(f"\t\tLooking for subjects in {subdir}")
+        subjects=glob.glob(subdir)
         
         for index,value in enumerate(subjects):
             subjects[index]=os.path.basename(value.replace('sub-',''))      
-
+        print(f"\t\tfound {len(subjects)} subjects on disk")
         return subjects
 
     def Sessions(self,project:str,subject:str):
@@ -209,11 +210,12 @@ class DataCommons():
             else:
                 print(f"\tFound {dcp}")
 
-            dc_subject_collection = self.Subjects(cms_projects[cms_project_uid].title)
+            dc_subject_collection = self.Subjects(cms_projects[cms_project_uid].field_path_to_exam_data)
             cms_subject_collection = SubjectCollection(cms_host=self.cms_host,project=cms_project_uid)            
             cms_subjects = cms_subject_collection.get()
             #Upsert all DC subjects
             refresh_needed=False
+            
             for dc_subject in dc_subject_collection:
                 #Exist on cms?
                 cms_has_subject=False
