@@ -53,7 +53,7 @@ class DataCommons():
             return active_projects
 
     def Subjects(self,project: str):
-        subdir=f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-*"
+        subdir=f"{self.commons_path}/projects/{project.field_id}/datasets/rawdata/sub-*"
         print(f"\t\tLooking for subjects in {subdir}")
         subjects=glob.glob(subdir)
         
