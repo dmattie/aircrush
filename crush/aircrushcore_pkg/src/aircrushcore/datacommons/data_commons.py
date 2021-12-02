@@ -66,7 +66,7 @@ class DataCommons():
         sessions=glob.glob(f"{self.commons_path}/projects/{project}/datasets/rawdata/sub-{subject}/ses-*")
         for index,value in enumerate(sessions):
             sessions[index]=os.path.basename(value.replace('ses-','') )
-
+        print(f"\t\t\tfound {len(sessions)} sessions")
         return sessions
 
     # def SyncWithCMS2(self):
@@ -256,7 +256,7 @@ class DataCommons():
             if refresh_needed:
                 cms_subjects = cms_subject_collection.get()
             
-
+            print("Looking for sessions")
             for cms_subject in cms_subjects:
                 dc_sessions = self.Sessions(cms_projects[cms_project_uid].title, cms_subjects[cms_subject].title)
                 
