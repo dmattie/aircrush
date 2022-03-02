@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="aircrushcore",
-    version="0.1.20",
+    version="0.1.21",
     author="Dave Mattie",
     author_email="dmattie@stfx.ca",
     description="Core pipelines and operators for airCRUSH",
