@@ -42,12 +42,14 @@ class Workload:
                 tis_on_this_node[ti]=tic_col[ti]
         return tis_on_this_node
 
-    def get_next_task(self,node_uuid:str):
+    def get_next_task(self,node_uuid:str, nth=1):
         ###################################################################
         # Big fancy optimization AI brain goes here #######################
         ###################################################################
         #... but for now...
         #What node am I on?
+        nth_decrementor=nth
+
         compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
         compute_node = compute_node_coll.get_one(uuid=node_uuid)
         
@@ -86,11 +88,19 @@ class Workload:
                             duration=self.duration_since_job_end(ti.field_jobid)
                             if duration>self.seconds_between_failures:
                                 print(f"{ti.title} recently failed ({self.seconds_between_failures} seconds ago).  Re-attempting...")
-                                return ti
+                                nth_decrementor = nth_decrementor - 1
+                                if nth_decrementor==0:
+                                    return ti
+                                else:
+                                    continue
                             else:
                                 print(f"{ti.title} recently failed and will not be re-attempted until {self.seconds_between_failures} seconds have elapsed after failure.  See ~/.crush.ini ")
                         else:
-                            return ti
+                            nth_decrementor = nth_decrementor - 1
+                            if nth_decrementor==0:
+                                return ti
+                            else:
+                                continue
                     #else:
                     #    print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
     def duration_since_job_end(self,jobid):

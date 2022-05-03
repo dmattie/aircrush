@@ -6,10 +6,16 @@ from .task_collection import TaskCollection
 from .task_instance_collection import TaskInstanceCollection
 #from .compute_node_collection import ComputeNodeCollection
 from .pipeline_collection import PipelineCollection
+import subprocess
+from humanfriendly import format_size, parse_size
 
 class ComputeNode():
    
     def __init__(self,**kwargs):
+
+        self.aircrush=kwargs['aircrush'] if 'aircrush' in kwargs else None 
+      
+
         self.title=""                        
         self.field_host=""                
         self.field_username=""
@@ -18,8 +24,8 @@ class ComputeNode():
         self.field_account="" 
         self.body=""
         self.uuid=""  
-        self.HOST=None    
-        self.concurrency_limit=2 #TODO
+        self.HOST=None            
+        
 
         #TODO  Need log and error locations, job start directory       
       
@@ -44,7 +50,8 @@ class ComputeNode():
             self.uuid=m['uuid']          
         if "cms_host" in m:
             self.HOST=m['cms_host'] 
-   
+
+
     def upsert(self):
 
             payload = {
@@ -86,8 +93,64 @@ class ComputeNode():
         return True
 
     def isReady(self):
+        if not self.aircrush is None:
+            if _prereq_diskspace(aircrush) == False:
+                return False
+            if _prereq_concurrency(aircrush) == False:
+                return False
         return True
         #TODO, check connectivity, disk quota, etc
+
+    def _prereq_concurrency(self,aircrush):
+        if self.aircrush.config.has_option('COMPUTE','concurrency_limit'):            
+            allocated=self.allocated_sessions()
+            try:
+                concurrency_limit=int(self.aircrush.config['COMPUTE']['concurrency_limit'])
+                if concurrency_limit>=len(allocated):
+                    print(f"Concurrency limit reached. {len(allocated)} sessions already allocated.")
+            except Exception as e:
+                print(f"[ERROR]: Unable to assess concurrency limit {e}")
+                return False
+        else:
+            return True
+        
+    def _prereq_diskspace(self,aircrush):      
+        if self.aircrush.config.has_option('COMPUTE','available_disk'):
+            available_disk=self.aircrush.config['COMPUTE']['available_disk']
+        else:
+            available_disk=None
+
+        if self.aircrush.config.has_option('COMPUTE','minimum_disk_to_act'):
+            minimum_disk_to_act=self.aircrush.config['COMPUTE']['minimum_disk_to_act']
+        else:
+            minimum_disk_to_act=None
+
+
+        if available_disk is None or minimum_disk_to_act is None:
+            if available_disk is None and minimum_disk_to_act is None:
+                print("[INFO]: There are no settings that allow confirmation of disk space availability.")
+                return True  #No guardrails!
+            else:
+                print("[WARNING]:The settings available_disk and minimum_disk_to_act must both be set in ~/.crush.ini to confirm disk space availability.")
+                return True            
+        else:
+            available_disk=aircrush.config['COMPUTE']['available_disk']
+            shell_cmd=[available_disk]     
+            process = subprocess.Popen(shell_cmd, stdout=subprocess.PIPE)
+            out,_ = process.communicate()
+
+            if process.returncode!=0:
+                print(f"Failed to assess available diskspace. Attempted:{available_disk}, Result: {out}")                
+                return False
+            else:
+                requirement=parse_size(minimum_disk_to_act)
+                found=parse_size(out)
+                if found<requirement:
+                    print(f"[WARNING]: Prerequisite not met: Insufficient disk space to run this operation, {available_disk} required")
+                    return False
+
+        return True
+                    
 
     def allocated_sessions(self):
         
