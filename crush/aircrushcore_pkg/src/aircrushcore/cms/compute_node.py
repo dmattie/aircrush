@@ -100,7 +100,13 @@ class ComputeNode():
                 return False
         return True
         #TODO, check connectivity, disk quota, etc
-
+    def _sizeof_fmt(num, suffix="B"):
+        for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+            if abs(num) < 1024.0:
+                return f"{num:3.1f}{unit}{suffix}"
+            num /= 1024.0
+        return f"{num:.1f}Yi{suffix}"
+        
     def _prereq_concurrency(self,aircrush):
         if self.aircrush.config.has_option('COMPUTE','concurrency_limit'):            
             allocated=self.allocated_sessions()
@@ -112,6 +118,7 @@ class ComputeNode():
                 print(f"[ERROR]: Unable to assess concurrency limit {e}")
                 return False
         else:
+            print(f"Node can accept {concurrency_limit-len(allocated)} more sessions.  {len(allocated)} allocated, {concurrency_limit} maximum.")
             return True
         
     def _prereq_diskspace(self,aircrush):      
@@ -148,6 +155,8 @@ class ComputeNode():
                 if found<requirement:
                     print(f"[WARNING]: Prerequisite not met: Insufficient disk space to run this operation, {available_disk} required")
                     return False
+                else:
+                    print(f"Diskspace looks good.  {_sizeof_fmt(requirement)} required, {_sizeof_fmt(found)} available.")
 
         return True
                     
