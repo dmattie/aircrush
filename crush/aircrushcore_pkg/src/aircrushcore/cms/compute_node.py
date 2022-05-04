@@ -1,4 +1,5 @@
 import json
+import sys
 from .session import Session
 from .session_collection import SessionCollection
 from .task_instance import TaskInstance
@@ -53,6 +54,9 @@ class ComputeNode():
         
        
 
+
+    def eprint(*args, **kwargs):
+        print(*args, file=sys.stderr, **kwargs)
 
     def upsert(self):
 
@@ -157,9 +161,19 @@ class ComputeNode():
                 print(f"[FAILED] Failed to assess available diskspace. Attempted:{available_disk}, Result: {out}")                
                 return False
             else:
-                requirement=parse_size(minimum_disk_to_act)
-                print("out:{out}",flush=True)
-                found=int.from_bytes(out,"big")
+                try:
+                    requirement=parse_size(minimum_disk_to_act)
+                except Exception as e:
+                    eprint("Unable to decipher size specified in crush.ini [COMPUTE]minimum_disk_to_act option")
+                    eprint(e)
+                    return False
+                try:
+                    print("out:{out}",flush=True)
+                    found=int.from_bytes(out,"big")
+                except Exception as e:
+                    eprint("Value returned to determine available disk space was not a number ({out})")
+                    eprint(e)
+                    return False
                 if found<requirement:
                     print(f"[FAILED]: Prerequisite not met: Insufficient disk space to run this operation, {available_disk} required")
                     return False
