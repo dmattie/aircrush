@@ -27,7 +27,7 @@ services:
       - "80:80"
     volumes:
       - ${PROJECT_ROOT}/:/var/www/html/
-    container_name: apache
+    #container_name: apache
   mysql:
     image: mysql:${MYSQL_VERSION:-latest}
     restart: always
@@ -42,13 +42,13 @@ services:
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_USER: "${DB_USERNAME}"
       MYSQL_PASSWORD: "${DB_PASSWORD}"
-    container_name: mysql
+    #container_name: mysql
 networks:
   frontend:
-    external: true
-    driver: overlay
+    #external: true
+    #driver: overlay
   backend:
-    external: true
-    driver: overlay
+    #external: true
+    #driver: overlay
 volumes:
     data:
