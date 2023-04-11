@@ -61,8 +61,7 @@ RUN apk add --update \
         php8-pdo \
         php8-pdo_mysql \
         php8-sockets \
-        php8-zlib \
-        php8-mcrypt \
+        php8-zlib \        
         php8-mysqli \
         php8-sqlite3 \
         php8-bz2 \
@@ -82,10 +81,11 @@ RUN apk add --update \
         php8-exif \
         php8-xsl \
         php8-ldap \
-        php8-bcmath \
-        php8-memcached \
-        php8-oauth \
+        php8-bcmath \       
         php8-apcu
+        # php8-memcached \
+        #php8-oauth \
+        #php8-mcrypt \
 
 # Copy php.ini memory limit increase    
 COPY php.ini /usr/local/etc/php/
