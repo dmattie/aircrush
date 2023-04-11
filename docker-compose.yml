@@ -45,6 +45,10 @@ services:
     container_name: mysql
 networks:
   frontend:
+    external: true
+    driver: overlay
   backend:
+    external: true
+    driver: overlay
 volumes:
     data:
