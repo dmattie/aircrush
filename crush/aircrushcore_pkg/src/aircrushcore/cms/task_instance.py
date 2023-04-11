@@ -24,40 +24,31 @@ class TaskInstance():
         self.field_seff=None
         self.field_errorfile=None
         self.field_logfile=None
+        self.field_multiplier_duration=None
+        self.field_multiplier_memory=None
+        self.field_queue_for_retry=None
     
         if 'metadata' in kwargs:
             m=kwargs['metadata']   
                 
-            if 'title' in m:
-                self.title=m['title']        
-            if 'field_associated_participant_ses' in m:
-                self.field_associated_participant_ses=m['field_associated_participant_ses']
-            if 'field_pipeline' in m:
-                self.field_pipeline=m['field_pipeline']
-            if 'body' in m:
-                self.body=m['body']
-            if 'field_errorlog' in m:
-                self.errorlog=m['field_errorlog']
-            if 'field_remaining_retries' in m:
-                self.field_remaining_retries=m['field_remaining_retries']
-            if 'field_status' in m:
-                self.field_status=m['field_status']
-            if 'field_task' in m:
-                self.field_task=m['field_task']
-            if "cms_host" in m:
-                self.HOST=m['cms_host']    
-            if 'uuid' in m:
-                self.uuid=m['uuid'] 
-            if 'published' in m:
-                self.published=m['published'] #Published indicator is actually 'status'
-            if 'field_jobid' in m:                
-                self.field_jobid=m['field_jobid']
-            if 'field_seff' in m:                
-                self.field_seff=m['field_seff']
-            if 'field_errorfile' in m:
-                self.field_errorfile=m['field_errorfile']
-            if 'field_logfile' in m:
-                self.field_logfile=m['field_logfile']
+            self.title=m['title'] if 'title' in m else None                
+            self.field_associated_participant_ses=m['field_associated_participant_ses'] if 'field_associated_participant_ses' in m else None                
+            self.field_pipeline=m['field_pipeline'] if 'field_pipeline' in m else None                
+            self.body=m['body'] if 'body' in m else None                
+            self.errorlog=m['field_errorlog'] if 'field_errorlog' in m else None                
+            self.field_remaining_retries=m['field_remaining_retries'] if 'field_remaining_retries' in m else None                
+            self.field_status=m['field_status'] if 'field_status' in m else None                
+            self.field_task=m['field_task'] if 'field_task' in m else None                
+            self.HOST=m['cms_host'] if "cms_host" in m else None                
+            self.uuid=m['uuid'] if 'uuid' in m else None                
+            self.published=m['published'] if 'published' in m else None  #Published indicator is actually 'status'
+            self.field_jobid=m['field_jobid'] if 'field_jobid' in m else None                
+            self.field_seff=m['field_seff'] if 'field_seff' in m else None                
+            self.field_errorfile=m['field_errorfile'] if 'field_errorfile' in m else None                
+            self.field_logfile=m['field_logfile'] if 'field_logfile' in m else None                
+            self.field_multiplier_duration = m['field_multiplier_duration'] if 'field_multiplier_duration' in m else None
+            self.field_multiplier_memory = m['field_multiplier_memory'] if 'field_multiplier_memory' in m else None
+            self.field_queue_for_retry = m['field_queue_for_retry'] if 'field_queue_for_retry' in m else None
                                
                 
 
@@ -108,6 +99,12 @@ class TaskInstance():
             if not self.published == None:
                 #status is the published flag
                 payload['data']['attributes']['status']=self.published
+            if not self.field_multiplier_duration == None:
+                payload['data']['attributes']['field_multiplier_duration']=self.field_multiplier_duration
+            if not self.field_multiplier_memory == None:
+                payload['data']['attributes']['field_multiplier_memory']=self.field_multiplier_memory
+            if not self.field_queue_for_retry == None:
+                payload['data']['attributes']['field_queue_for_retry']=self.field_queue_for_retry
 
             if self.field_associated_participant_ses:
                 field_associated_participant_ses={

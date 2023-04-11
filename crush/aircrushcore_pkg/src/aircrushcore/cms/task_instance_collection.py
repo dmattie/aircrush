@@ -117,7 +117,9 @@ class TaskInstanceCollection():
                         "field_seff":item['attributes']['field_seff'],
                         "field_errorfile":item['attributes']['field_errorfile'],
                         "field_logfile":item['attributes']['field_logfile'],
-                        "field_task":item['relationships']['field_task']['data']['id'],                            
+                        "field_task":item['relationships']['field_task']['data']['id'],
+                        "field_multiplier_duration":item['attributes']['field_multiplier_duration'],
+                        "field_multiplier_memory":item['attributes']['field_multiplier_memory'],
                         "uuid":uuid,
                         "cms_host":self.HOST                                               
                     }

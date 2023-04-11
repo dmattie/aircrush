@@ -7,6 +7,17 @@ from aircrushcore.compute.compute_node_connection import ComputeNodeConnection
 from aircrushcore.compute.compute import Compute
 import subprocess
 import urllib
+
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKCYAN = '\033[96m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
+
 class Workload:
     def __init__(self,aircrush:AircrushConfig):            
         self.aircrush=aircrush 
@@ -26,6 +37,8 @@ class Workload:
         except Exception as e:
             print("Configuration setting seconds_between_failures in COMPUTE section not found or not an integer. Defaulting to 18000 (5 hours).")
             self.seconds_between_failures=18000
+    def eprint(*args, **kwargs):
+        print(*args, file=sys.stderr, **kwargs)
 
     def get_running_tasks(self,node_uuid:str):
         #Look for tasks initiated by this compute node(node-uuid)
@@ -42,7 +55,7 @@ class Workload:
                 tis_on_this_node[ti]=tic_col[ti]
         return tis_on_this_node
 
-    def get_next_task(self,node_uuid:str, nth=1):
+    def get_next_task(self,node_uuid:str, nth=1,accept_new_sessions=True):
         ###################################################################
         # Big fancy optimization AI brain goes here #######################
         ###################################################################
@@ -52,15 +65,21 @@ class Workload:
 
         compute_node_coll = ComputeNodeCollection(cms_host=self.crush_host)
         compute_node = compute_node_coll.get_one(uuid=node_uuid)
-        
+        if compute_node is None:
+            self.eprint(f"{FAIL}[ERROR]{ENDC} This compute node has not been defined in the CMS.")
+            return
         #Ensure sessions are allocated and task instances reflect the current pipeline
-        self._distribute_sessions_to_node(compute_node)
+        if accept_new_sessions==True:
+            self._distribute_sessions_to_node(compute_node)
+        else:
+            print("{WARNING}No new sessions will be allocated to this node{ENDC}.  Only existing sessions will be advanced.")
        
         #Get task instances ready to run
-        filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted"
+        filter="sort[sort_filter][path]=field_status&sort[sort_filter][direction]=DESC&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=IN&filter[status-filter][condition][value][1]=failed&filter[status-filter][condition][value][2]=notstarted&filter[status-filter][condition][value][3]=waiting"
+        #print(filter)
         tic = TaskInstanceCollection(cms_host=self.crush_host)        
         tic_col = tic.get(filter=filter)
-        #print("SIFT THROUGH THE PILE")
+        print(f"Sifting through incomplete task instances ({len(tic_col)}) for any allocated to this compute node")
         if(len(tic_col)>0):
             #Iterate the tasks, looking for one we can do
             for ti_idx in tic_col:
@@ -69,9 +88,9 @@ class Workload:
                 session = ti.associated_session()    
                 
                 if session.field_responsible_compute_node == node_uuid: # This session has been allocated to the node asking for work
-                    #print(f"Candidate task instance {ti.title}")
-                    task = ti.task_definition()
-                    if not self.unmet_dependencies(task,ti): #Ignore any with unmet dependencies
+                    print(f"Candidate task instance {ti.title} ...",end='')
+  
+                    if not self.unmet_dependencies(ti): #Ignore any with unmet dependencies
 
                         #If 
                         tises=ti.associated_session()
@@ -87,7 +106,7 @@ class Workload:
                            #Let's see if this has failed long enough ago that we can go again
                             duration=self.duration_since_job_end(ti.field_jobid)
                             if duration>self.seconds_between_failures:
-                                print(f"{ti.title} recently failed ({self.seconds_between_failures} seconds ago).  Re-attempting...")
+                                print(f"{OKGREEN}recently failed ({self.seconds_between_failures} seconds ago).  Re-attempting...{ENDC}")
                                 nth_decrementor = nth_decrementor - 1
                                 if nth_decrementor==0:
                                     return ti
@@ -100,9 +119,10 @@ class Workload:
                             if nth_decrementor==0:
                                 return ti
                             else:
+                                print()
                                 continue
-                    #else:
-                    #    print(f"\ttask has unmet dependencies {task.title} {ti.associated_session().title}")
+                # else:
+                #     print(f"skipping {ti.title}...session allocated to another node")
     def duration_since_job_end(self,jobid):
         # This command gets the seconds since unix epoch of job end and
         # seconds since unix epoch for now to get seconds between now and job failure
@@ -126,30 +146,35 @@ class Workload:
         out, _ = process.communicate()
         return (process.returncode, out)
 
-
-    def unmet_dependencies(self,task:Task,candidate_ti:TaskInstance):
-        session_uuid=candidate_ti.associated_session()
+    def unmet_dependencies(self,candidate_ti:TaskInstance):
+        task=candidate_ti.task_definition()
+        session=candidate_ti.associated_session()
+        if session is None:
+            raise Exception(f"{FAIL}[ERROR]{ENDC} Task instance appears to be orphaned.  No associated session.")
+             
+        session_uuid=session.uuid
         for prereq_task in task.field_prerequisite_tasks:
             #for the given task, find dependent tasks with incomplete task instances 
 
             
-            #Look for any uncomplete task_instances matching this task_uuid for this session
-            filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed"
-            tic = TaskInstanceCollection(cms_host=self.crush_host,task=prereq_task['id'])        
-            tic_col = tic.get(filter=filter,session=session_uuid)
+            #Look for any incomplete task_instances matching this task_uuid for this session
+            filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed&filter[status-filter][condition][value][2]=processed"
+            tic = TaskInstanceCollection(cms_host=self.crush_host,task=prereq_task['id'],session=session_uuid)        
+            tic_col = tic.get(filter=filter)
             #print(f"\t{len(tic_col)} task instances instantiated for the same session that have failed or not started (including the candidate)")
             if not tic_col == None:
                 for ti_uuid in tic_col:
                                
                     if ti_uuid != candidate_ti.uuid:
-                        #print(f"\t{tic_col[ti_uuid].title} is a parent of the candidate and is incomplete || compare: found ti {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}") 
-                        #print(f"compare: ti_uuid {ti_uuid}  candidate_ti.uuid {candidate_ti.uuid}")
+                        print(f"\t{WARNING}Prereq {tic_col[ti_uuid].field_status}{ENDC}:{tic_col[ti_uuid].title}")                         
                         return True
         #print("\tno unmet dependencies for the task definition associated with this task instance")
         return False
 
 
     def _distribute_sessions_to_node(self,compute_node:ComputeNode):
+        if compute_node is None:
+            raise 
         allocated_sessions = compute_node.allocated_sessions()
         
         if int(self.concurrency_limit)<=len(allocated_sessions):            
@@ -163,21 +188,23 @@ class Workload:
             outstanding_projects = proj_col.get(filter="&sort=-sticky") #Get sticky first (note the "-"" for descending)
 
             for outstanding_project in outstanding_projects:
-                print(f"Considering {outstanding_projects[outstanding_project].title} for sessios to process")
+                print(f"Checking the following project for sessions to process: {outstanding_projects[outstanding_project].title}")
                 #Starting at subjects that are sticky (priority), iterate looking for sessions not yet allocated
                 #    
                 sub_col = SubjectCollection(cms_host=self.crush_host,project=outstanding_project)                
-                outstanding_subjects = sub_col.get(filter="&filter[field_status][value]=notstarted&sort=-sticky")
+                #outstanding_subjects = sub_col.get(filter="&filter[field_status][value]=notstarted&sort=-sticky")
+                outstanding_subjects = sub_col.get(filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed&filter[status-filter][condition][value][2]=processed&filter[status-filter][condition][value][3]=terminal&sort=-sticky")
                 print(f"\t{len(outstanding_subjects)} subjects not started")
                 for outstanding_subject in outstanding_subjects:
-
+                    if self.concurrency_limit<=len(allocated_sessions):
+                        break
                     ses_col = SessionCollection(cms_host=self.crush_host,subject=outstanding_subject)
                         #Get sessions that don't have a compute node allocated
-                    outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[field_status][value]=notstarted")
-                    #isnull=urllib.parse.quote_plus("IS NULL")
-                    #outstanding_sessions = ses_col.get(page_limit=1,filter=f"&filter[filter1][condition][path]=field_responsible_compute_node.id&filter[filter1][condition][operator]={isnull}")
-                    #outstanding_sessions = ses_col.get(page_limit=1)
-                    print(f"\t\t{outstanding_subjects[outstanding_subject].title} has {len(outstanding_sessions)}  sessions not started")
+                 #   outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[field_status][value]=notstarted")
+                    #filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed&filter[status-filter][condition][value][2]=processed"
+                    outstanding_sessions = ses_col.get(page_limit=2,filter="&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed&filter[status-filter][condition][value][2]=processed&filter[status-filter][condition][value][3]=terminal")
+                 
+                    print(f"\t\t{outstanding_subjects[outstanding_subject].title} has {len(outstanding_sessions)}  incomplete sessions")
                     for ses_uid in outstanding_sessions:
                         session=ses_col.get_one(ses_uid)
                         if session.field_responsible_compute_node is None:

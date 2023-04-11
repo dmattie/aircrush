@@ -24,6 +24,8 @@ src/aircrushcore/cms/task.py
 src/aircrushcore/cms/task_collection.py
 src/aircrushcore/cms/task_instance.py
 src/aircrushcore/cms/task_instance_collection.py
+src/aircrushcore/common/__init__.py
+src/aircrushcore/common/enumerators.py
 src/aircrushcore/compute/__init__.py
 src/aircrushcore/compute/compute.py
 src/aircrushcore/compute/compute_node_connection.py

@@ -92,3 +92,4 @@ class Subject():
     def project(self):
         project = ProjectCollection(cms_host=self.HOST).get_one(uuid=self.field_project)        
         return project
+

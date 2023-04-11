@@ -6,7 +6,7 @@ if __name__ == '__main__':
 
     setuptools.setup(
         name="aircrushcore",
-        version="0.1.34",
+        version="0.1.74",
         author="Dave Mattie",
         author_email="dmattie@stfx.ca",
         description="Core pipelines and operators for airCRUSH",

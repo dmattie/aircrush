@@ -1,6 +1,7 @@
 version: "3.2"
 services:
   php:
+    image: 127.0.0.1:5000/aircrush_php    
     build: 
       context: './php/'
       args:
@@ -11,6 +12,7 @@ services:
       - ${PROJECT_ROOT}/:/var/www/html/
     container_name: php
   apache:
+    image: 127.0.0.1:5000/aircrush_apache
     build:
       context: './apache/'
       args:

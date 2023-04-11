@@ -5,3 +5,4 @@ class AircrushConfig():
 
         self.config = configparser.ConfigParser()
         self.config.read(configfile)
+

@@ -9,6 +9,18 @@ from .task_instance_collection import TaskInstanceCollection
 from .pipeline_collection import PipelineCollection
 import subprocess
 from humanfriendly import format_size, parse_size
+from ..common import Readiness
+
+
+HEADER = '\033[95m'
+OKBLUE = '\033[94m'
+OKCYAN = '\033[96m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
 
 class ComputeNode():
    
@@ -98,7 +110,7 @@ class ComputeNode():
 
         return True
        
-    def _sizeof_fmt(num, suffix="B"):
+    def _sizeof_fmt(self,num, suffix="B"):
         for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
             if abs(num) < 1024.0:
                 return f"{num:3.1f}{unit}{suffix}"
@@ -108,35 +120,42 @@ class ComputeNode():
     def _prereq_concurrency(self):
         print("Assessing concurrency threshold...",end='',flush=True)
         if self.aircrush is None:
-            print(f"[PASSED] Skipping concurrency check, config settings not passed")
+            print(f"{OKGREEN}[PASSED]{ENDC} Skipping concurrency check, config settings not passed")
             return True
         if self.aircrush.config.has_option('COMPUTE','concurrency_limit'):            
             allocated=self.allocated_sessions()
             try:
                 concurrency_limit=int(self.aircrush.config['COMPUTE']['concurrency_limit'])
-                if concurrency_limit>=len(allocated):
-                    print(f"[FAILED] Concurrency limit reached. {len(allocated)} sessions already allocated.")
+                if concurrency_limit<=len(allocated):
+                    print(f"{WARNING}[LIMITED]{ENDC} Concurrency limit reached. {len(allocated)} sessions already allocated.")
                     return False
                 else:
-                    print(f"[PASSED] Node can accept {concurrency_limit-len(allocated)} more sessions.  {len(allocated)} allocated, {concurrency_limit} maximum.")
+                    print(f"{OKGREEN}[PASSED]{ENDC} Node can accept {concurrency_limit-len(allocated)} more sessions.  {len(allocated)} allocated, {concurrency_limit} maximum.")
                 return True
             except Exception as e:
-                print(f"[FAILED] Unable to assess concurrency limit {e}")
+                print(f"{FAIL}[FAILED]{ENDC} Unable to assess concurrency limit {e}")
                 return False
         else:
-            print("[PASSED] No concurrency threshold set.")
+            print("{OKGREEN}[PASSED]{ENDC} No concurrency threshold set.")
             return True
         
         
     def _prereq_diskspace(self):   
-        print("Assessing disk....",end='',flush=True)
+        print("Assessing available disk....",end='',flush=True)
         if self.aircrush is None:
-            print(f"[PASSED] Skipping disk check, config settings not passed")
-            return True        
-        if self.aircrush.config.has_option('COMPUTE','available_disk'):
-            available_disk=self.aircrush.config['COMPUTE']['available_disk']
+            print(f"{OKGREEN}[PASSED]{ENDC} Skipping disk check, config settings not passed")
+            return True      
+
+        if self.aircrush.config.has_option('COMPUTE','disk_used_cmd'):
+            disk_used_cmd=self.aircrush.config['COMPUTE']['disk_used_cmd']
         else:
-            available_disk=None
+            disk_used_cmd=None
+                
+        if self.aircrush.config.has_option('COMPUTE','disk_quota_cmd'):
+            disk_quota_cmd=self.aircrush.config['COMPUTE']['disk_quota_cmd']
+        else:
+            disk_quota_cmd=None
+
 
         if self.aircrush.config.has_option('COMPUTE','minimum_disk_to_act'):
             minimum_disk_to_act=self.aircrush.config['COMPUTE']['minimum_disk_to_act']
@@ -144,58 +163,78 @@ class ComputeNode():
             minimum_disk_to_act=None
 
 
-        if available_disk is None or minimum_disk_to_act is None:
-            if available_disk is None and minimum_disk_to_act is None:
-                print("[PASSED]: There are no settings that allow confirmation of disk space availability.")
-                return True  #No guardrails!
-            else:
-                print("[PASSED]:The settings available_disk and minimum_disk_to_act must both be set in ~/.crush.ini to confirm disk space availability.")
-                return True            
+        if disk_used_cmd is None or disk_quota_cmd is None or minimum_disk_to_act is None:            
+            print("{WARNING}[PASSED]{ENDC}: There are insufficient settings to determine disk space availability.  See disk_used_cmd, disk_quota_cmd, and minimum_disk_to_act settings.  Assuming no guardrails")
+            return True  #No guardrails!           
         else:
-            available_disk=self.aircrush.config['COMPUTE']['available_disk']
-            shell_cmd=["bash","-c",available_disk]     
+            
+            shell_cmd=["bash","-c",disk_used_cmd]     
             process = subprocess.Popen(shell_cmd, stdout=subprocess.PIPE)
-            out,_ = process.communicate()
+            disk_used,_ = process.communicate(timeout=90)
 
             if process.returncode!=0:
-                print(f"[FAILED] Failed to assess available diskspace. Attempted:{available_disk}, Result: {out}")                
+                print(f"{FAIL}[FAILED]{ENDC} Failed to determine disk space in use({process.returncode}). Attempted:{disk_used_cmd}, Result: {disk_used}")                
+                return False
+            
+            shell_cmd=["bash","-c",disk_quota_cmd]     
+            process = subprocess.Popen(shell_cmd, stdout=subprocess.PIPE)
+            disk_quota,_ = process.communicate(timeout=90)
+
+            if process.returncode!=0:
+                print(f"{FAIL}[FAILED]{ENDC} Failed to determine disk quota. Attempted:{disk_used_cmd}, Result: {disk_quota}.")                
+                return False
+
+
+            try:
+                requirement=parse_size(minimum_disk_to_act)
+            except Exception as e:
+                self.eprint(f"{FAIL}Unable to decipher size specified in crush.ini [COMPUTE] minimum_disk_to_act option ({minimum_disk_to_act}){ENDC}")
+                self.eprint(e)
+                return False
+
+            try:                
+                disk_used_int=int(disk_used)
+            except Exception as e:
+                self.eprint("{FAIL}Value returned to determine used disk space was not a number ({disk_used}){ENDC}")
+                self.eprint(e)
+                return False
+            try:                
+                disk_quota_int=int(disk_quota)
+            except Exception as e:
+                self.eprint("{FAIL}Value returned to determine disk quota was not a number ({disk_quota}){ENDC}")
+                self.eprint(e)
+                return False
+            
+            found = disk_quota_int - disk_used_int                
+            if found<requirement:
+                print(f"{FAIL}[FAILED]{ENDC}: Prerequisite not met: Insufficient disk space to run this operation, {requirement} required, {found} available.")
                 return False
             else:
-                try:
-                    requirement=parse_size(minimum_disk_to_act)
-                except Exception as e:
-                    eprint("Unable to decipher size specified in crush.ini [COMPUTE]minimum_disk_to_act option")
-                    eprint(e)
-                    return False
-                try:
-                    print("out:{out}",flush=True)
-                    found=int.from_bytes(out,"big")
-                except Exception as e:
-                    eprint("Value returned to determine available disk space was not a number ({out})")
-                    eprint(e)
-                    return False
-                if found<requirement:
-                    print(f"[FAILED]: Prerequisite not met: Insufficient disk space to run this operation, {available_disk} required")
-                    return False
-                else:
-                    print(f"[PASSED] Diskspace looks good.  {self._sizeof_fmt(requirement)} required, {self._sizeof_fmt(found)} available.")
-                    return True
+
+                print(f"{OKGREEN}[PASSED]{ENDC} Diskspace looks good.  {self._sizeof_fmt(requirement)} required, {self._sizeof_fmt(found)} available.")
+                return True
 
         return True
                     
-    def isReady(self):
-       
-        if self._prereq_diskspace() == False:
-            return False
-        if self._prereq_concurrency() == False:
-            return False  
+    def isReady(self,skip_tests:bool=False):
+        if skip_tests:
+            return Readiness.READY
+        else:
+            if self._prereq_diskspace() == False:
+                return Readiness.NOT_READY
+            if self._prereq_concurrency() == False:
+                return Readiness.LIMITED  
 
-        return True
+        return Readiness.READY
 
     def allocated_sessions(self):
         
         sess_col = SessionCollection(cms_host=self.HOST)   
-        sess_uids = sess_col.get(filter=f"&filter[field_responsible_compute_node.id][value]={self.uuid}")
+        try:
+            sess_uids = sess_col.get(filter=f"&filter[field_responsible_compute_node.id][value]={self.uuid}")
+        except Exception as e:
+            print(f"{FAIL}[ERROR]{ENDC} Unable to determine sessions allocated to this compute node.")
+            self.eprint(e)
         
         return sess_uids
         #sess_uids = sess_col.get()
@@ -225,9 +264,9 @@ class ComputeNode():
     def refresh_task_instances(self):
         print("Refreshing task instances")
         sess_col = SessionCollection(cms_host=self.HOST)            
-        sessions = sess_col.get(filter=f"&filter[field_responsible_compute_node.id][value]={self.uuid}")
+        sessions = sess_col.get(filter=f"&filter[field_responsible_compute_node.id][value]={self.uuid}&filter[status-filter][condition][path]=field_status&filter[status-filter][condition][operator]=NOT%20IN&filter[status-filter][condition][value][1]=completed&filter[status-filter][condition][value][2]=processed&filter[status-filter][condition][value][3]=terminal")
         for ses in sessions:
-            #print(f"\t{sessions[ses].title}")
+            #print(f"\t{sessions[ses].title}")            
             self._establish_task_instances(sessions[ses])
 
     def _attach_to_session(self,session:Session):

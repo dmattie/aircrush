@@ -13,6 +13,7 @@ class Project():
         self.body=""
         self.uuid=""             
         self.field_activated_pipelines=""
+        self.field_treat_failed_as_terminal=""
         self.HOST=""
 
         if 'metadata' in kwargs:
@@ -40,6 +41,8 @@ class Project():
             self.uuid=m['uuid']        
         if "field_activated_pipelines" in m: #Tuple of UUIDs
             self.field_activated_pipelines=m['field_activated_pipelines']   
+        if "field_treat_failed_as_terminal" in m:
+            self.field_treat_failed_as_terminal=m['field_treat_failed_as_terminal']
         if "cms_host" in m:
             self.HOST=m['cms_host'] 
    
@@ -57,6 +60,7 @@ class Project():
                         "field_path_to_crush_agent":self.field_path_to_crush_agent,
                         "field_path_to_exam_data":self.field_path_to_exam_data,
                         "field_username":self.field_username,
+                        "field_treat_failed_as_terminal":self.field_treat_failed_as_terminal,
                         "body":self.body                        
                     },
                     "relationships":{}
@@ -109,3 +113,22 @@ class Project():
             raise ValueError(f"Project deletion failed [{self.uuid}]")
 
         return True
+
+    def get_overrides(self,task_uuid:str):
+        overrides={}
+        if task_uuid is None:
+            print(f"{FAIL}SKIPPED{ENDC} Overrides for project sought, but task operation not specified")
+            return overrides
+        url=f"jsonapi/node/project/{self.uuid}?include=field_overrides"     
+        r = self.HOST.get(url)
+        if r.status_code==200:  #We can connect to CRUSH host   
+            if 'included' in  r.json():                     
+                if len(r.json()['included'])!=0:                    
+                    for item in r.json()['included']:                                         
+                        if(item['type']=='paragraph--override'):
+                            if(item['relationships']['field_task']['data']['id'])==task_uuid:                            
+                                name=item['attributes']['field_parameter']
+                                value=item['attributes']['field_value']
+                                overrides[name]=value
+                            
+        return overrides        

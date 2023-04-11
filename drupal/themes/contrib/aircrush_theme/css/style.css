@@ -4,10 +4,22 @@ body {background-image:none;
     background-color:#00ff99;
     color:black;
 }
+.status-waiting { 
+    background-color:#DAF7A6;
+    color:black;
+}
 
 .status-failed { 
     background-color:#ff9999;
     color:black;
+}
+.status-terminal { 
+    background-color:#A333FF;
+    color:white;
+}
+.status-terminal a {
+    background-color:#A333FF;
+    color:white;
 }
 
 
@@ -34,4 +46,9 @@ pre {
     line-height:1.25rem;
     font-family:'Courier New', Courier, monospace;
     
+}
+.field--name-field-errorlog {
+    font-size:0.8rem;
+    line-height:1.25rem;
+    font-family:'Courier New', Courier, monospace;    
 }

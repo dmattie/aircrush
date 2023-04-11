@@ -1,13 +1,11 @@
 Metadata-Version: 2.1
 Name: aircrushcore
-Version: 0.1.33
+Version: 0.1.74
 Summary: Core pipelines and operators for airCRUSH
 Home-page: https://github.com/dmattie/aircrushcore
 Author: Dave Mattie
 Author-email: dmattie@stfx.ca
-License: UNKNOWN
 Project-URL: Bug Tracker, https://github.com/dmattie/aircrushcore/issues
-Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: POSIX :: Linux
@@ -18,4 +16,3 @@ License-File: LICENSE
 # coreCRUSH Package
 
 Core Package for client integration with AirCrush neuroscience workflow platform
-
