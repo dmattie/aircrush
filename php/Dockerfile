@@ -42,50 +42,50 @@ RUN apk add --update \
         build-base \
         autoconf \
         libtool \
-        php7-dev \
+        php8-dev \
         pcre-dev \
         imagemagick-dev \
-        php7 \
-        php7-fpm \
-        php7-opcache \
-        php7-session \
-        php7-dom \
-        php7-xml \
-        php7-xmlreader \
-        php7-ctype \
-        php7-ftp \
-        php7-gd \
-        php7-json \
-        php7-posix \
-        php7-curl \
-        php7-pdo \
-        php7-pdo_mysql \
-        php7-sockets \
-        php7-zlib \
-        php7-mcrypt \
-        php7-mysqli \
-        php7-sqlite3 \
-        php7-bz2 \
-        php7-phar \
-        php7-openssl \
-        php7-posix \
-        php7-zip \
-        php7-calendar \
-        php7-iconv \
-        php7-imap \
-        php7-soap \
-        php7-dev \
-        php7-pear \
-        php7-redis \
-        php7-mbstring \
-        php7-xdebug \
-        php7-exif \
-        php7-xsl \
-        php7-ldap \
-        php7-bcmath \
-        php7-memcached \
-        php7-oauth \
-        php7-apcu
+        php8 \
+        php8-fpm \
+        php8-opcache \
+        php8-session \
+        php8-dom \
+        php8-xml \
+        php8-xmlreader \
+        php8-ctype \
+        php8-ftp \
+        php8-gd \
+        php8-json \
+        php8-posix \
+        php8-curl \
+        php8-pdo \
+        php8-pdo_mysql \
+        php8-sockets \
+        php8-zlib \
+        php8-mcrypt \
+        php8-mysqli \
+        php8-sqlite3 \
+        php8-bz2 \
+        php8-phar \
+        php8-openssl \
+        php8-posix \
+        php8-zip \
+        php8-calendar \
+        php8-iconv \
+        php8-imap \
+        php8-soap \
+        php8-dev \
+        php8-pear \
+        php8-redis \
+        php8-mbstring \
+        php8-xdebug \
+        php8-exif \
+        php8-xsl \
+        php8-ldap \
+        php8-bcmath \
+        php8-memcached \
+        php8-oauth \
+        php8-apcu
 
 # Copy php.ini memory limit increase    
 COPY php.ini /usr/local/etc/php/
