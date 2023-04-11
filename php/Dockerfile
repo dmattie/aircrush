@@ -92,6 +92,6 @@ COPY php.ini /usr/local/etc/php/
 
 #RUN composer require drupal/migrate_tools
 #RUN composer require drupal/charts
-RUN drush en migrate
-RUN drush en unique_entity_title
-RUN drush en basic_auth
+#RUN drush en migrate
+#RUN drush en unique_entity_title
+#RUN drush en basic_auth
